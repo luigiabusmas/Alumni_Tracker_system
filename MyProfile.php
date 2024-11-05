@@ -1,4 +1,4 @@
-<?php
+<?php 
 session_start();
 require 'database.php'; // Include your database connection
 
@@ -8,6 +8,10 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+if (isset($_GET['message'])) {
+    echo "<script>alert('" . htmlspecialchars($_GET['message']) . "');</script>"; // Display the message
+    
+}
 // Fetch user information from the database
 $user_id = $_SESSION['user_id'];
 $username = $_SESSION['username'];
@@ -56,7 +60,102 @@ foreach ($fields_to_check as $field) {
 
 // Calculate completion percentage
 $completion_percentage = ($filled_fields / $total_fields) * 100;
+
+// Handle form submission
+$message = ''; // Variable to hold success or error messages
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Collect form data
+    $updatedData = [
+        'alumni_id' => $_POST['alumni_id'],
+        'fname' => $_POST['fname'],
+        'mname' => $_POST['mname'],
+        'lname' => $_POST['lname'],
+        'kld_email' => $_POST['kld_email'],
+        'home_address' => $_POST['home_address'],
+        'primary_phone' => $_POST['primary_phone'],
+        'secondary_phone' => $_POST['secondary_phone'],
+        'gender' => $_POST['gender'],
+        'date_of_birth' => $_POST['date_of_birth'],
+        'graduation_year' => $_POST['graduation_year'],
+        'degree_obtained' => $_POST['degree_obtained'],
+        'employment_status' => $_POST['employment_status'],
+        'company_name' => $_POST['company_name'],
+        'job_title' => $_POST['job_title'],
+        'job_description' => $_POST['job_description'],
+        'reason_future_plans' => $_POST['reason_future_plans'],
+        'motivation_for_studies' => $_POST['motivation_for_studies'],
+        'degree_or_program' => $_POST['degree_or_program'],
+        // Check if a new profile picture has been uploaded
+        'profile_picture' => !empty($_FILES['profile_picture']['name']) ? $_FILES['profile_picture']['name'] : $profile['profile_picture']
+    ];
+
+    // Check if any values have changed
+    $changes = false;
+    foreach ($updatedData as $key => $value) {
+        if ($value !== $profile[$key] && $key !== 'profile_picture') {
+            $changes = true;
+            break;
+        }
+    }
+
+    // Only proceed with update if there are changes
+    if ($changes || !empty($_FILES['profile_picture']['name'])) {
+        // Prepare update query
+        $update_stmt = $conn->prepare("UPDATE alumni_profile_table SET 
+            fname=?, 
+            mname=?, 
+            lname=?, 
+            kld_email=?, 
+            home_address=?, 
+            primary_phone=?, 
+            secondary_phone=?, 
+            gender=?, 
+            date_of_birth=?, 
+            graduation_year=?, 
+            degree_obtained=?, 
+            employment_status=?, 
+            company_name=?, 
+            job_title=?, 
+            job_description=?, 
+            reason_future_plans=?, 
+            motivation_for_studies=?, 
+            degree_or_program=?, 
+            profile_picture=? 
+            WHERE alumni_id=?");
+        
+        $update_stmt->bind_param("ssssssssssssssssssss", 
+            $updatedData['fname'], $updatedData['mname'], $updatedData['lname'], 
+            $updatedData['kld_email'], $updatedData['home_address'], 
+            $updatedData['primary_phone'], $updatedData['secondary_phone'], 
+            $updatedData['gender'], $updatedData['date_of_birth'], 
+            $updatedData['graduation_year'], $updatedData['degree_obtained'], 
+            $updatedData['employment_status'], $updatedData['company_name'], 
+            $updatedData['job_title'], $updatedData['job_description'], 
+            $updatedData['reason_future_plans'], $updatedData['motivation_for_studies'], 
+            $updatedData['degree_or_program'], $updatedData['profile_picture'], 
+            $updatedData['alumni_id']
+        );
+
+ // Execute the update query
+ if ($update_stmt->execute()) {
+    // Handle file upload if profile picture is updated
+    if (!empty($_FILES['profile_picture']['name'])) {
+        move_uploaded_file($_FILES['profile_picture']['tmp_name'], "image/" . $updatedData['profile_picture']);
+    }
+    $message = 'Profile updated successfully.'; // Set success message
+    header("Location: MyProfile.php?message=" . urlencode($message)); // Redirect to the same page with the message
+    exit();
+} else {
+    $message = 'Error updating profile.'; // Set error message
+    exit();
+}
+} else {
+$message = 'No changes were made to the profile.'; // No changes message
+exit();
+}
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -158,6 +257,44 @@ $completion_percentage = ($filled_fields / $total_fields) * 100;
             max-width: 150px; /* Set max width for profile picture */
         }
     </style>
+
+<script>
+let originalValues = {};
+
+function makeFormEditable() {
+    // Store original values
+    document.querySelectorAll("#profileForm .form-control").forEach((input) => {
+        originalValues[input.name] = input.value; // Save original value
+        input.removeAttribute("readonly");        // Make editable
+    });
+
+    // Show the Cancel and Save buttons, hide Edit button
+    document.getElementById("editButton").style.display = "none";
+    document.getElementById("cancelButton").style.display = "inline-block";
+    document.getElementById("saveButton").style.display = "inline-block";
+}
+
+function cancelEdit() {
+    // Restore original values
+    document.querySelectorAll("#profileForm .form-control").forEach((input) => {
+        if (input.name in originalValues) {
+            input.value = originalValues[input.name]; // Reset to original value
+        }
+        input.setAttribute("readonly", "true"); // Make read-only again
+    });
+
+    // Hide the Cancel and Save buttons, show Edit button
+    document.getElementById("editButton").style.display = "inline-block";
+    document.getElementById("cancelButton").style.display = "none";
+    document.getElementById("saveButton").style.display = "none";
+}
+
+function submitForm() {
+    // Programmatically submit the form
+    document.getElementById("profileForm").submit();
+}
+</script>
+
 </head>
 <body>
 
@@ -165,7 +302,9 @@ $completion_percentage = ($filled_fields / $total_fields) * 100;
 
 <div class="container mt-5">
     <h2 class="text-center">Profile Overview</h2>
-
+    <?php if (!empty($message)): ?>
+        <div class="alert alert-info"><?php echo htmlspecialchars($message); ?></div>
+    <?php endif; ?>
     <!-- Progress Bar -->
     <div class="progress-container">
         <div class="progress">
@@ -183,68 +322,130 @@ $completion_percentage = ($filled_fields / $total_fields) * 100;
             ?>
         </div>
     </div>
-    
-    <form id="profileForm" class="container shadow p-4 rounded">
-        <!-- Profile Picture -->   
-         <form action="landing_page.php" method="get">
-    <button type="submit" class="btn btn-success">Update Profile</button>
+
+    <!-- Update Profile Button -->
+ 
+          
+    <div class="text-left">
+    <button class="btn btn-primary" onclick="makeFormEditable()" id="editButton">Edit Profile</button>
+    <button type="button" id="cancelButton" class="btn btn-secondary" style="display:none;" onclick="cancelEdit()">Cancel</button>
+    <!-- Save button triggers form submission programmatically -->
+    <button type="button" id="saveButton" class="btn btn-success" style="display:none;" onclick="submitForm()">Save Changes</button>
+</div>
+    <!-- Profile Form -->
+<!-- Profile Form -->
+<form action="MyProfile.php" method="POST" enctype="multipart/form-data" id="profileForm" class="container shadow p-4 rounded">
+
+    <input type="hidden" name="alumni_id" value="<?= htmlspecialchars($alumni_id) ?>">
+
+    <!-- Profile Picture -->
+    <div class="form-section text-center">
+        <h3>Profile Picture</h3>
+        <div class="form-group">
+            <img src="image/<?= htmlspecialchars($profile['profile_picture']); ?>" alt="Profile Picture" class="img-thumbnail">
+        </div>
+        <div class="form-group">
+            <label>Change Profile Picture:</label>
+            <input type="file" name="profile_picture" value='<?= htmlspecialchars($profile['profile_picture']); ?>' class="form-control" readonly>
+        </div>
+    </div>
+
+    <!-- Personal Information -->
+    <div class="form-section">
+        <h3>Personal Information</h3>
+        <div class='form-group'>
+            <label>First Name:</label>
+            <input type='text' name='fname' class='form-control' value='<?= htmlspecialchars($profile["fname"]) ?>' readonly>
+        </div>
+        <div class='form-group'>
+            <label>Middle Name:</label>
+            <input type='text' name='mname' class='form-control' value='<?= htmlspecialchars($profile["mname"]) ?>' readonly>
+        </div>
+        <div class='form-group'>
+            <label>Last Name:</label>
+            <input type='text' name='lname' class='form-control' value='<?= htmlspecialchars($profile["lname"]) ?>' readonly>
+        </div>
+        <div class='form-group'>
+            <label>Official KLD Email:</label>
+            <input type='text' name='kld_email' class='form-control' value='<?= htmlspecialchars($profile["kld_email"]) ?>' readonly>
+        </div>
+        <div class='form-group'>
+            <label>Home Address:</label>
+            <input type='text' name='home_address' class='form-control' value='<?= htmlspecialchars($profile["home_address"]) ?>' readonly>
+        </div>
+        <div class='form-group'>
+            <label>Primary Phone:</label>
+            <input type='text' name='primary_phone' class='form-control' value='<?= htmlspecialchars($profile["primary_phone"]) ?>' readonly>
+        </div>
+        <div class='form-group'>
+            <label>Secondary Phone:</label>
+            <input type='text' name='secondary_phone' class='form-control' value='<?= htmlspecialchars($profile["secondary_phone"]) ?>' readonly>
+        </div>
+        <div class='form-group'>
+            <label>Gender:</label>
+            <select name='gender' class='form-control' <?= isset($profile["gender"]) ? '' : 'readonly' ?>>
+                <option value='Male' <?= $profile["gender"] === 'Male' ? 'selected' : '' ?>>Male</option>
+                <option value='Female' <?= $profile["gender"] === 'Female' ? 'selected' : '' ?>>Female</option>
+                <option value='Other' <?= $profile["gender"] === 'Other' ? 'selected' : '' ?>>Other</option>
+            </select>
+        </div>
+        <div class='form-group'>
+            <label>Date of Birth:</label>
+            <input type='date' name='date_of_birth' class='form-control' value='<?= htmlspecialchars($profile["date_of_birth"]) ?>' readonly>
+        </div>
+    </div>
+
+    <!-- Education and Career Information -->
+    <div class="form-section">
+        <h3>Education and Career Information</h3>
+        <div class='form-group'>
+            <label>Graduation Year:</label>
+            <input type='text' name='graduation_year' class='form-control' value='<?= htmlspecialchars($profile["graduation_year"]) ?>' readonly>
+        </div>
+        <div class='form-group'>
+            <label>Degree Obtained:</label>
+            <input type='text' name='degree_obtained' class='form-control' value='<?= htmlspecialchars($profile["degree_obtained"]) ?>' readonly>
+        </div>
+        <div class='form-group'>
+            <label>Employment Status:</label>
+            <select name='employment_status' class='form-control' <?= isset($profile["employment_status"]) ? '' : 'readonly' ?>>
+                <option value='Employed' <?= $profile["employment_status"] === 'Employed' ? 'selected' : '' ?>>Employed</option>
+                <option value='Unemployed' <?= $profile["employment_status"] === 'Unemployed' ? 'selected' : '' ?>>Unemployed</option>
+                <option value='Student' <?= $profile["employment_status"] === 'Student' ? 'selected' : '' ?>>Student</option>
+                <option value='Other' <?= $profile["employment_status"] === 'Other' ? 'selected' : '' ?>>Other</option>
+            </select>
+        </div>
+        <div class='form-group'>
+            <label>Company Name:</label>
+            <input type='text' name='company_name' class='form-control' value='<?= htmlspecialchars($profile["company_name"]) ?>' readonly>
+        </div>
+        <div class='form-group'>
+            <label>Job Title:</label>
+            <input type='text' name='job_title' class='form-control' value='<?= htmlspecialchars($profile["job_title"]) ?>' readonly>
+        </div>
+        <div class='form-group'>
+            <label>Job Description:</label>
+            <textarea name='job_description' class='form-control' readonly><?= htmlspecialchars($profile["job_description"]) ?></textarea>
+        </div>
+        <div class='form-group'>
+            <label>Reason and Future Plans:</label>
+            <textarea name='reason_future_plans' class='form-control' readonly><?= htmlspecialchars($profile["reason_future_plans"]) ?></textarea>
+        </div>
+        <div class='form-group'>
+            <label>Motivation for Studies:</label>
+            <textarea name='motivation_for_studies' class='form-control' readonly><?= htmlspecialchars($profile["motivation_for_studies"]) ?></textarea>
+        </div>
+        <div class='form-group'>
+            <label>Degree/Program Enrolled:</label>
+            <input type='text' name='degree_or_program' class='form-control' value='<?= htmlspecialchars($profile["degree_or_program"]) ?>' readonly>
+        </div>
+    </div>
+
+    <div class="text-left">
+        <button type="submit" id="saveButton" class="btn btn-success" style="display:none;">Save Changes</button>
+    </div>
 </form>
 
-        <div class="form-section text-center">
-            <h3>Profile Picture</h3>
-            <div class="form-group">
-                <img src="image/<?php echo htmlspecialchars($profile['profile_picture']); ?>" alt="Profile Picture" class="img-thumbnail">
-            </div>
-        </div>
-
-        <!-- Personal Information -->
-        <div class="form-section">
-            
-            <h3>Personal Information</h3>
-            <?php 
-            $personal_fields = [
-                "alumni_id" => "Alumni ID", "fname" => "First Name", "mname" => "Middle Name",
-                "lname" => "Last Name", "kld_email" => "Official KLD Email", "home_address" => "Home Address",
-                "primary_phone" => "Primary Phone", "secondary_phone" => "Secondary Phone", "gender" => "Gender",
-                "date_of_birth" => "Date of Birth"
-            ];
-            foreach ($personal_fields as $field => $label) {
-                echo "<div class='form-group'>
-                        <label>{$label}:</label>
-                        <input type='text' class='form-control' value='" . htmlspecialchars($profile[$field]) . "' readonly>
-                      </div>";
-            }
-            ?>
-        </div>
-
-        <!-- Education and Career Information -->
-        <div class="form-section">
-            <h3>Education and Career Information</h3>
-            <?php 
-            $career_fields = [
-                "graduation_year" => "Graduation Year", "degree_obtained" => "Degree Obtained",
-                "employment_status" => "Employment Status", "company_name" => "Company Name",
-                "job_title" => "Job Title", "job_description" => "Job Description",
-                "reason_future_plans" => "Reason and Future Plans", "motivation_for_studies" => "Motivation for Studies",
-                "degree_or_program" => "Degree/Program Enrolled"
-            ];
-            foreach ($career_fields as $field => $label) {
-                $value = htmlspecialchars($profile[$field]);
-                if ($field == "job_description" || $field == "reason_future_plans" || $field == "motivation_for_studies") {
-                    echo "<div class='form-group'>
-                            <label>{$label}:</label>
-                            <textarea class='form-control' readonly>{$value}</textarea>
-                          </div>";
-                } else {
-                    echo "<div class='form-group'>
-                            <label>{$label}:</label>
-                            <input type='text' class='form-control' value='{$value}' readonly>
-                          </div>";
-                }
-            }
-            ?>
-        </div>
-    </form>
 </div>
 <br />
 <?php include 'footer.php'; ?>
