@@ -12,10 +12,11 @@ if (isset($_GET['message'])) {
     $message = htmlspecialchars($_GET['message']);
     echo "<script>
             alert('$message');
-            window.location.href = 'MyProfile.php';
+            window.location.href = 'EditAlumniProfile.php?id=" . urlencode($_GET['id']) . "';
           </script>";
     exit; // Prevent further script execution
 }
+
 // Fetch user information from the database
 $user_id = $_SESSION['user_id'];
 $username = $_SESSION['username'];
@@ -29,8 +30,8 @@ $stmt->fetch();
 $stmt->close();
 
 // Fetch records from the alumni_profile_table based on alumni_id
-$profile_stmt = $conn->prepare("SELECT * FROM alumni_profile_table WHERE alumni_id = ?");
-$profile_stmt->bind_param("s", $alumni_id);
+$profile_stmt = $conn->prepare("SELECT * FROM alumni_profile_table WHERE id = ?");
+$profile_stmt->bind_param("s", $_GET['id']);
 $profile_stmt->execute();
 $result = $profile_stmt->get_result();
 
@@ -125,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             motivation_for_studies=?, 
             degree_or_program=?, 
             profile_picture=? 
-            WHERE alumni_id=?");
+            WHERE id=?");
         
         $update_stmt->bind_param("ssssssssssssssssssss", 
             $updatedData['fname'], $updatedData['mname'], $updatedData['lname'], 
@@ -137,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $updatedData['job_title'], $updatedData['job_description'], 
             $updatedData['reason_future_plans'], $updatedData['motivation_for_studies'], 
             $updatedData['degree_or_program'], $updatedData['profile_picture'], 
-            $updatedData['alumni_id']
+            $updatedData[$_GET['id']]
         );
 
  // Execute the update query
@@ -147,7 +148,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         move_uploaded_file($_FILES['profile_picture']['tmp_name'], "image/" . $updatedData['profile_picture']);
     }
     $message = 'Profile updated successfully.'; // Set success message
-    header("Location: MyProfile.php?message=" . urlencode($message)); // Redirect to the same page with the message
+    header("Location: EditAlumniProfile.php?id=" . urlencode($_GET['id']) . "&message=" . urlencode($message));
+    // Redirect to the same page with the message
     exit();
 } else {
     $message = 'Error updating profile.'; // Set error message
@@ -342,15 +344,29 @@ function submitForm() {
     <!-- Update Profile Button -->
  
           
-    <div class="form-section text-left">
-    <button class="btn btn-primary" onclick="makeFormEditable()" id="editButton">Edit Profile</button>
-    <button type="button" id="cancelButton" class="btn btn-secondary" style="display:none;" onclick="cancelEdit()">Cancel</button>
-    <!-- Save button triggers form submission programmatically -->
-    <button type="button" id="saveButton" class="btn btn-success" style="display:none;" onclick="submitForm()">Save Changes</button>
+    <div class="form-section d-flex justify-content-between">
+    <div class="text-left">
+        <a href="AlumniProfiles.php" class="btn btn-success">Back to list</a>
+        <button class="btn btn-primary" onclick="makeFormEditable()" id="editButton">Edit Profile</button>
+        <button type="button" id="cancelButton" class="btn btn-primary" style="display:none;" onclick="cancelEdit()">Cancel</button>
+        <!-- Save button triggers form submission programmatically -->
+        <button type="button" id="saveButton" class="btn btn-secondary" style="display:none;" onclick="submitForm()">Save Changes</button>
+    </div>
+    <div class="text-right">
+    <a href="javascript:void(0);" onclick="confirmDelete()" class="btn btn-danger">Delete</a>
+</div>
+<script>
+function confirmDelete() {
+    const confirmDelete = confirm("Are you sure you want to delete this profile?");
+    if (confirmDelete) {
+        window.location.href = "DeleteAlumniProfile.php?id=<?php echo urlencode($profile['id']); ?>"; // Redirect to delete script
+    }
+}
+</script>
 </div>
     <!-- Profile Form -->
 <!-- Profile Form -->
-<form action="MyProfile.php" method="POST" enctype="multipart/form-data" id="profileForm" class="container shadow p-4 rounded">
+<form action="EditAlumniProfile.php?id=<?php echo urlencode($_GET['id']); ?>" method="POST" enctype="multipart/form-data" id="profileForm" class="container shadow p-4 rounded">
 
     <input type="hidden" name="alumni_id" value="<?= htmlspecialchars($alumni_id) ?>">
 

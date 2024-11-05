@@ -11,8 +11,9 @@
                 <?php if ($is_admin): ?>
                     <li class="nav-item"><a class="nav-link" href="dashboard.php">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="MyProfile.php">My Profile</a></li>
+                    <li class="nav-item"><a class="nav-link" href="AlumniProfiles.php">Alumni Profiles</a></li>
                     <li class="nav-item"><a class="nav-link" href="dashboard.php?page=ManageAccess">Manage Access</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Alumni Profiles</a></li>
+       
                     <li class="nav-item"><a class="nav-link" href="#">Job Listing</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Events</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Articles</a></li>
