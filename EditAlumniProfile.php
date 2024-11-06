@@ -12,7 +12,7 @@ if (isset($_GET['message'])) {
     $message = htmlspecialchars($_GET['message']);
     echo "<script>
             alert('$message');
-            window.location.href = 'EditAlumniProfile.php?id=" . urlencode($_GET['id']) . "';
+            window.location.href = 'EditAlumniProfile.php?id=" . urlencode($_GET['id']) . "'; // Ensures message displays after page reload
           </script>";
     exit; // Prevent further script execution
 }
@@ -94,16 +94,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'profile_picture' => !empty($_FILES['profile_picture']['name']) ? $_FILES['profile_picture']['name'] : $profile['profile_picture']
     ];
 
-    // Check if any values have changed
+    // Check if any values have changed (including profile picture)
     $changes = false;
     foreach ($updatedData as $key => $value) {
-        if ($value !== $profile[$key] && $key !== 'profile_picture') {
+        if ($value !== $profile[$key]) {
             $changes = true;
             break;
         }
     }
 
-    // Only proceed with update if there are changes
+    // If no changes and no profile picture uploaded, show message and exit
+    if (!$changes && empty($_FILES['profile_picture']['name'])) {
+        $message = 'No changes were made to the profile.'; // No changes message
+        header("Location: EditAlumniProfile.php?id=" . urlencode($_GET['id']) . "&message=" . urlencode($message)); // Redirect with message
+        exit(); // Prevent further execution
+    }
+
+    // Only proceed with update if there are changes or profile picture is uploaded
     if ($changes || !empty($_FILES['profile_picture']['name'])) {
         // Prepare update query
         $update_stmt = $conn->prepare("UPDATE alumni_profile_table SET 
@@ -138,29 +145,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $updatedData['job_title'], $updatedData['job_description'], 
             $updatedData['reason_future_plans'], $updatedData['motivation_for_studies'], 
             $updatedData['degree_or_program'], $updatedData['profile_picture'], 
-            $updatedData[$_GET['id']]
+            $_GET['id'] // Correct the binding for the ID field
         );
 
- // Execute the update query
- if ($update_stmt->execute()) {
-    // Handle file upload if profile picture is updated
-    if (!empty($_FILES['profile_picture']['name'])) {
-        move_uploaded_file($_FILES['profile_picture']['tmp_name'], "image/" . $updatedData['profile_picture']);
+        // Execute the update query
+        if ($update_stmt->execute()) {
+            // Handle file upload if profile picture is updated
+            if (!empty($_FILES['profile_picture']['name'])) {
+                move_uploaded_file($_FILES['profile_picture']['tmp_name'], "image/" . $updatedData['profile_picture']);
+            }
+            $message = 'Profile updated successfully.'; // Set success message
+            header("Location: EditAlumniProfile.php?id=" . urlencode($_GET['id']) . "&message=" . urlencode($message));
+            exit();
+        } else {
+            $message = 'Error updating profile.'; // Set error message
+            exit();
+        }
     }
-    $message = 'Profile updated successfully.'; // Set success message
-    header("Location: EditAlumniProfile.php?id=" . urlencode($_GET['id']) . "&message=" . urlencode($message));
-    // Redirect to the same page with the message
-    exit();
-} else {
-    $message = 'Error updating profile.'; // Set error message
-    exit();
-}
-} else {
-$message = 'No changes were made to the profile.'; // No changes message
-exit();
-}
 }
 ?>
+
 
 
 <!DOCTYPE html>
