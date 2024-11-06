@@ -1,259 +1,254 @@
-<?php  
+<?php
+require 'session.php'; // Include your database connection
 
-
-
-
-require 'session.php';
-
-// Check if the user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header("Location: index.php"); // Redirect to the login page if not logged in
-    exit();
+if (isset($_GET['message'])) {
+    $message = htmlspecialchars($_GET['message']);
+    echo "<script>
+            alert('$message');
+            window.location.href = 'AddAlumniProfile.php';
+          </script>";
+    exit; // Prevent further script execution
 }
 
-// Fetch user information from the database
-$user_id = $_SESSION['user_id'];
-$username = $_SESSION['username'];
+// Fetch profile data based on alumni_id from GET request
 
-// Prepare and execute the statement to fetch alumni_id and is_admin
-$stmt = $conn->prepare("SELECT alumni_id, is_admin FROM users_access WHERE id = ?");
-$stmt->bind_param("s", $user_id);
-$stmt->execute();
-$stmt->bind_result($alumni_id, $is_admin);
-$stmt->fetch();
-$stmt->close();
 
-// Fetch records from the alumni_profile table using alumni_id
-$profile_stmt = $conn->prepare("SELECT * FROM alumni_profile_table WHERE alumni_id = ?");
-$profile_stmt->bind_param("s", $alumni_id); // Using alumni_id
-$profile_stmt->execute();
-$result = $profile_stmt->get_result();
+// Count filled and unfilled fields
+$total_fields = 19; // Total number of fields to check
+$filled_fields = 0;
 
-if ($result->num_rows > 0) {
-    $profile = $result->fetch_assoc(); // Fetch the profile data
-    // Optionally handle existing profile case (e.g., show a message)
-    $message = "A profile already exists for this alumni ID.";
-} else {
-    $profile = []; // No existing profile found
-}
+// List of fields to check
+$fields_to_check = [
+    'fname', 'mname', 'lname', 'kld_email', 'home_address',
+    'primary_phone', 'secondary_phone', 'gender', 'date_of_birth',
+    'graduation_year', 'degree_obtained', 'employment_status',
+    'company_name', 'job_title', 'job_description', 'reason_future_plans',
+    'motivation_for_studies', 'degree_or_program', 'profile_picture'
+];
 
-// Initialize variables for form data
-$alumni_id = $username = $email = $fname = $lname = $kld_email = $home_address = $primary_phone = $secondary_phone = $gender = "";
-$date_of_birth = $graduation_year = $degree_obtained = $employment_status = $company_name = $job_title = $job_description = $reason_future_plans = $motivation_for_studies = $degree_or_program = "";
-$message = "";
-
-// Handle form submission
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Get form data
-    $alumni_id = $_POST['alumni_id'];
-    $username = $_POST['username'];
-    $email = $_POST['email'];
-    $fname = $_POST['fname'];
-    $lname = $_POST['lname'];
-    $kld_email = $_POST['kld_email'];
-    $home_address = $_POST['home_address'];
-    $primary_phone = $_POST['primary_phone'];
-    $secondary_phone = $_POST['secondary_phone'];
-    $gender = $_POST['gender'];
-    $date_of_birth = $_POST['date_of_birth'];
-    $graduation_year = $_POST['graduation_year'];
-    $degree_obtained = $_POST['degree_obtained'];
-    $employment_status = $_POST['employment_status'];
-    $company_name = $_POST['company_name'];
-    $job_title = $_POST['job_title'];
-    $job_description = $_POST['job_description'];
-    $reason_future_plans = $_POST['reason_future_plans'];
-    $motivation_for_studies = $_POST['motivation_for_studies'];
-    $degree_or_program = $_POST['degree_or_program'];
-
-    // Insert new profile only if it doesn't exist
-    if (empty($profile)) {
-        // Prepare and execute insert statement
-        $stmt = $conn->prepare("INSERT INTO alumni_profile_table 
-            (alumni_id, username, email, fname, lname, kld_email, home_address, primary_phone, secondary_phone, gender, date_of_birth, graduation_year, degree_obtained, employment_status, company_name, job_title, job_description, reason_future_plans, motivation_for_studies, degree_or_program) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        
-        $stmt->bind_param("sssssssssssssssssss", 
-            $alumni_id, $username, $email, $fname, $lname, 
-            $kld_email, $home_address, $primary_phone, $secondary_phone, 
-            $gender, $date_of_birth, $graduation_year, $degree_obtained, 
-            $employment_status, $company_name, $job_title, $job_description, 
-            $reason_future_plans, $motivation_for_studies, $degree_or_program);
-        
-        if ($stmt->execute()) {
-            $message = "Profile added successfully.";
-        } else {
-            $message = "Error adding profile: " . $conn->error;
-        }
-        $stmt->close();
-    } else {
-        $message = "Profile already exists for this alumni ID.";
+// Calculate filled fields
+foreach ($fields_to_check as $field) {
+    if (!empty($profile[$field])) {
+        $filled_fields++;
     }
 }
 
-// Close the profile statement
-$profile_stmt->close();
+// Calculate completion percentage
+$completion_percentage = ($filled_fields / $total_fields) * 100;
 
+// Handle form submission
+$message = ''; // Variable to hold success or error messages
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Collect form data
+    $updatedData = [
+        'alumni_id' => $_POST['alumni_id'],
+        'fname' => $_POST['fname'],
+        'mname' => $_POST['mname'],
+        'lname' => $_POST['lname'],
+        'kld_email' => $_POST['kld_email'],
+        'home_address' => $_POST['home_address'],
+        'primary_phone' => $_POST['primary_phone'],
+        'secondary_phone' => $_POST['secondary_phone'],
+        'gender' => $_POST['gender'],
+        'date_of_birth' => $_POST['date_of_birth'],
+        'graduation_year' => $_POST['graduation_year'],
+        'degree_obtained' => $_POST['degree_obtained'],
+        'employment_status' => $_POST['employment_status'],
+        'company_name' => $_POST['company_name'],
+        'job_title' => $_POST['job_title'],
+        'job_description' => $_POST['job_description'],
+        'reason_future_plans' => $_POST['reason_future_plans'],
+        'motivation_for_studies' => $_POST['motivation_for_studies'],
+        'degree_or_program' => $_POST['degree_or_program'],
+        // Check if a new profile picture has been uploaded
+        'profile_picture' => !empty($_FILES['profile_picture']['name']) ? $_FILES['profile_picture']['name'] : $profile['profile_picture']
+    ];
 
+    // Check if any values have changed
+    $changes = false;
+    foreach ($updatedData as $key => $value) {
+        if ($value !== $profile[$key] && $key !== 'profile_picture') {
+            $changes = true;
+            break;
+        }
+    }
+
+    // Only proceed with update if there are changes
+    if ($changes || !empty($_FILES['profile_picture']['name'])) {
+        // Prepare update query
+        $update_stmt = $conn->prepare("UPDATE alumni_profile_table SET 
+            fname=?, 
+            mname=?, 
+            lname=?, 
+            kld_email=?, 
+            home_address=?, 
+            primary_phone=?, 
+            secondary_phone=?, 
+            gender=?, 
+            date_of_birth=?, 
+            graduation_year=?, 
+            degree_obtained=?, 
+            employment_status=?, 
+            company_name=?, 
+            job_title=?, 
+            job_description=?, 
+            reason_future_plans=?, 
+            motivation_for_studies=?, 
+            degree_or_program=?, 
+            profile_picture=? 
+            WHERE alumni_id=?");
+        
+        $update_stmt->bind_param("ssssssssssssssssssss", 
+            $updatedData['fname'], $updatedData['mname'], $updatedData['lname'], 
+            $updatedData['kld_email'], $updatedData['home_address'], 
+            $updatedData['primary_phone'], $updatedData['secondary_phone'], 
+            $updatedData['gender'], $updatedData['date_of_birth'], 
+            $updatedData['graduation_year'], $updatedData['degree_obtained'], 
+            $updatedData['employment_status'], $updatedData['company_name'], 
+            $updatedData['job_title'], $updatedData['job_description'], 
+            $updatedData['reason_future_plans'], $updatedData['motivation_for_studies'], 
+            $updatedData['degree_or_program'], $updatedData['profile_picture'], 
+            $updatedData['alumni_id']
+        );
+
+        // Execute the update query
+        if ($update_stmt->execute()) {
+            // Handle file upload if profile picture is updated
+            if (!empty($_FILES['profile_picture']['name'])) {
+                move_uploaded_file($_FILES['profile_picture']['tmp_name'], "image/" . $updatedData['profile_picture']);
+            }
+            $message = 'Profile updated successfully.'; // Set success message
+            header("Location: AlumniProfiles.php?message=" . urlencode($message)); // Redirect to the same page with the message
+            exit();
+        } else {
+            $message = 'Error updating profile.'; // Set error message
+            exit();
+        }
+    } else {
+        $message = 'No changes were made to the profile.'; // No changes message
+        exit();
+    }
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Alumni Profile</title>
+    <title>Edit Profile</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="./resources/styles.css"> 
     <link rel="stylesheet" href="./resources/dashboard.css"> 
     <style>
-        /* Custom styles for the form */
-        .form-container {
-            width: 100%;
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #f8f9fa;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .btn-submit {
-            padding: 10px 15px;
-            color: #ffffff;
-            background-color: #28a745;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .btn-submit:hover {
-            background-color: #218838;
-        }
-        .alert {
-            color: red;
-            margin-top: 15px;
-        }
+        body { font-family: Arial, sans-serif; background-color: #f4f7fa; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .form-section { background-color: #fff; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+        .form-control { border-radius: 5px; padding: 10px; border: 1px solid #ced4da; }
+        .img-thumbnail { max-width: 150px; border-radius: 10%; }
     </style>
 </head>
 <body>
+    <?php include 'header.php'; ?>
 
-<?php include 'header.php'; ?>
+    <div class="container mt-5">
+        <h2 class="text-center">Edit Profile</h2>
 
-<div class="form-container">
-    <h2>Add Alumni Profile</h2>
-    
-    <?php if ($message): ?>
-        <div class="alert"><?php echo htmlspecialchars($message); ?></div>
-    <?php endif; ?>
+        <form action="AddAlumniProfile.php" method="POST" enctype="multipart/form-data" id="profileForm" class="container shadow p-4 rounded">
 
-    <form method="POST" action="">
-        <div class="form-group">
-            <label for="alumni_id">Alumni ID</label>
-            <input type="text" name="alumni_id" id="alumni_id" placeholder="ex.KLDAA-202499999" required>
-        </div>
-        <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" name="username" id="username" required>
-        </div>
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" name="email" id="email" required>
-        </div>
-        <div class="form-group">
-            <label for="fname">First Name</label>
-            <input type="text" name="fname" id="fname" required>
-        </div>
-        <div class="form-group">
-            <label for="lname">Last Name</label>
-            <input type="text" name="lname" id="lname" required>
-        </div>
-        <div class="form-group">
-            <label for="kld_email">KLD Email</label>
-            <input type="email" name="kld_email" id="kld_email" required>
-        </div>
-        <div class="form-group">
-            <label for="home_address">Home Address</label>
-            <input type="text" name="home_address" id="home_address" required>
-        </div>
-        <div class="form-group">
-            <label for="primary_phone">Primary Phone</label>
-            <input type="tel" name="primary_phone" id="primary_phone" required>
-        </div>
-        <div class="form-group">
-            <label for="secondary_phone">Secondary Phone</label>
-            <input type="tel" name="secondary_phone" id="secondary_phone">
-        </div>
-        <div class="form-group">
-            <label for="gender">Gender</label>
-            <select name="gender" id="gender" required>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="date_of_birth">Date of Birth</label>
-            <input type="date" name="date_of_birth" id="date_of_birth" required>
-        </div>
-        <div class="form-group">
-            <label for="graduation_year">Graduation Year</label>
-            <input type="text" name="graduation_year" id="graduation_year" required>
-        </div>
-        <div class="form-group">
-            <label for="degree_obtained">Degree Obtained</label>
-            <input type="text" name="degree_obtained" id="degree_obtained" required>
-        </div>
-        <div class="form-group">
-            <label for="employment_status">Employment Status</label>
-            <select name="employment_status" id="employment_status" required>
-                <option value="Unemployed">Unemployed</option>
-                <option value="Employed">Employed</option>
-                <option value="Pursued Studies">Pursued Studies</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="company_name">Company Name</label>
-            <input type="text" name="company_name" id="company_name">
-        </div>
-        <div class="form-group">
-            <label for="job_title">Job Title</label>
-            <input type="text" name="job_title" id="job_title">
-        </div>
-        <div class="form-group">
-            <label for="job_description">Job Description</label>
-            <textarea name="job_description" id="job_description"></textarea>
-        </div>
-        <div class="form-group">
-            <label for="reason_future_plans">Reason for Future Plans</label>
-            <textarea name="reason_future_plans" id="reason_future_plans"></textarea>
-        </div>
-        <div class="form-group">
-            <label for="motivation_for_studies">Motivation for Studies</label>
-            <textarea name="motivation_for_studies" id="motivation_for_studies"></textarea>
-        </div>
-        <div class="form-group">
-            <label for="degree_or_program">Degree or Program</label>
-            <input type="text" name="degree_or_program" id="degree_or_program">
-        </div>
-        <div class="form-group">
-            <button type="submit" class="btn-submit">Add Profile</button>
-        </div>
-    </form>
+<!-- Profile Picture -->
+<div class="form-section text-center">
+    <h3>Profile Picture</h3>
+    <div class="form-group">
+        <label>Upload Profile Picture:</label>
+        <input type="file" name="profile_picture" class="form-control" required>
+    </div>
 </div>
-<?php include 'footer.php'; ?>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="./resources/popper.min.js"></script>
-<script src="./resources/bootstrap.min.js"></script>
+
+<!-- Personal Information -->
+<div class="form-section">
+    <h3>Personal Information</h3>
+    <div class="form-group">
+        <label>First Name:</label>
+        <input type="text" name="fname" class="form-control" required>
+    </div>
+    <div class="form-group">
+        <label>Middle Name:</label>
+        <input type="text" name="mname" class="form-control">
+    </div>
+    <div class="form-group">
+        <label>Last Name:</label>
+        <input type="text" name="lname" class="form-control" required>
+    </div>
+    <div class="form-group">
+        <label>Email:</label>
+        <input type="email" name="kld_email" class="form-control" required>
+    </div>
+    <div class="form-group">
+        <label>Home Address:</label>
+        <input type="text" name="home_address" class="form-control" required>
+    </div>
+    <div class="form-group">
+        <label>Primary Phone:</label>
+        <input type="text" name="primary_phone" class="form-control" required>
+    </div>
+    <div class="form-group">
+        <label>Secondary Phone:</label>
+        <input type="text" name="secondary_phone" class="form-control">
+    </div>
+    <div class="form-group">
+        <label>Gender:</label>
+        <select name="gender" class="form-control" required>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Date of Birth:</label>
+        <input type="date" name="date_of_birth" class="form-control" required>
+    </div>
+</div>
+
+<!-- Academic and Employment Information -->
+<div class="form-section">
+    <h3>Academic and Employment Information</h3>
+    <div class="form-group">
+        <label>Graduation Year:</label>
+        <input type="text" name="graduation_year" class="form-control" required>
+    </div>
+    <div class="form-group">
+        <label>Degree Obtained:</label>
+        <input type="text" name="degree_obtained" class="form-control" required>
+    </div>
+    <div class="form-group">
+        <label>Employment Status:</label>
+        <select name="employment_status" class="form-control" required>
+            <option value="Unemployed">Unemployed</option>
+            <option value="Employed">Employed</option>
+            <option value="Pursued Studies">Pursued Studies</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Company Name:</label>
+        <input type="text" name="company_name" class="form-control">
+    </div>
+    <div class="form-group">
+        <label>Job Title:</label>
+        <input type="text" name="job_title" class="form-control">
+    </div>
+    <div class="form-group">
+        <label>Job Description:</label>
+        <textarea name="job_description" class="form-control" rows="5"></textarea>
+    </div>
+</div>
+
+<div class="form-group text-right">
+    <button type="submit" class="btn btn-primary">Save Profile</button>
+    <a href="AlumniProfiles.php" class="btn btn-secondary">Cancel</a>
+</div>
+</form>
+
+    </div>
 </body>
 </html>

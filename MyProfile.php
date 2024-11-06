@@ -66,6 +66,7 @@ foreach ($fields_to_check as $field) {
 $completion_percentage = ($filled_fields / $total_fields) * 100;
 
 // Handle form submission
+// Handle form submission
 $message = ''; // Variable to hold success or error messages
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Collect form data
@@ -100,6 +101,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $changes = true;
             break;
         }
+    }
+
+    // If no changes, display the message and exit
+    if (!$changes && empty($_FILES['profile_picture']['name'])) {
+        $message = 'No changes were made to the profile.'; // No changes message
+        header("Location: MyProfile.php?message=" . urlencode($message)); // Redirect with message
+        exit();
     }
 
     // Only proceed with update if there are changes
@@ -140,23 +148,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $updatedData['alumni_id']
         );
 
- // Execute the update query
- if ($update_stmt->execute()) {
-    // Handle file upload if profile picture is updated
-    if (!empty($_FILES['profile_picture']['name'])) {
-        move_uploaded_file($_FILES['profile_picture']['tmp_name'], "image/" . $updatedData['profile_picture']);
+        // Execute the update query
+        if ($update_stmt->execute()) {
+            // Handle file upload if profile picture is updated
+            if (!empty($_FILES['profile_picture']['name'])) {
+                move_uploaded_file($_FILES['profile_picture']['tmp_name'], "image/" . $updatedData['profile_picture']);
+            }
+            $message = 'Profile updated successfully.'; // Set success message
+            header("Location: MyProfile.php?message=" . urlencode($message)); // Redirect to the same page with the message
+            exit();
+        } else {
+            $message = 'Error updating profile.'; // Set error message
+            exit();
+        }
     }
-    $message = 'Profile updated successfully.'; // Set success message
-    header("Location: MyProfile.php?message=" . urlencode($message)); // Redirect to the same page with the message
-    exit();
-} else {
-    $message = 'Error updating profile.'; // Set error message
-    exit();
-}
-} else {
-$message = 'No changes were made to the profile.'; // No changes message
-exit();
-}
 }
 ?>
 
