@@ -61,7 +61,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             VALUES ('$username', '$email', '$alumni_id', '$fname', '$mname', '$lname', '$kld_email', '$home_address', '$primary_phone', '$secondary_phone', '$gender', '$date_of_birth', '$graduation_year', '$degree_obtained', '$employment_status', '$company_name', '$job_title', '$job_description', '$reason_future_plans', '$motivation_for_studies', '$degree_or_program', '$profile_picture')";
 
     if (mysqli_query($conn, $sql)) {
-        echo "New alumni profile created successfully.";
+
+
+
+        echo "<script>
+        alert('New alumni profile created successfully.');
+        window.location.href = 'AddAlumniProfile.php'; // Ensures message displays after page reload
+      </script>";
+
+
+
     } else {
         echo "Error: " . $sql . "<br>" . mysqli_error($conn);
     }
@@ -78,16 +87,71 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="./resources/styles.css"> 
     <link rel="stylesheet" href="./resources/dashboard.css"> 
+    <style>
+        body {
+            background-color: #f4f7fa; /* Light background color */
+            font-family: Arial, sans-serif;
+        }
 
+        .container {
+            max-width: 800px; /* Container width for a compact layout */
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+     
+        .form-section {
+            background-color: #fff; /* White background for sections */
+            border-radius: 10px; /* Rounded corners */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Soft shadow */
+            margin-bottom: 20px; /* Space between sections */
+            padding: 20px; /* Padding inside each section */
+        }
+
+        .form-section h3 {
+            color: #007bff; /* Bootstrap primary color for section titles */
+        }
+
+        .form-group {
+            margin-bottom: 15px; /* Space between form groups */
+        }
+
+        .form-control {
+            border-radius: 5px; /* Rounded corners for inputs */
+            border: 1px solid #ced4da; /* Light border color */
+            padding: 10px; /* Padding inside inputs */
+            transition: border-color 0.3s; /* Smooth transition on focus */
+        }
+
+        .form-control:focus {
+            border-color: #007bff; /* Highlight border color on focus */
+            outline: none; /* Remove default outline */
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Add a shadow on focus */
+        }
+
+        .text-center {
+            text-align: center; /* Center text */
+        }
+
+    
+    </style>
 </head>
 <body>
 
 <?php include 'header.php'; ?>
-
+<div class="container mt-5">
 <form action="AddAlumniProfile.php" method="POST" enctype="multipart/form-data">
     <div class="container">
         <h2>Create Alumni Profile</h2>
 
+        <div class="form-group">
+            <label for="profile_picture">Profile Picture:</label>
+            <input type="file" class="form-control" id="profile_picture" name="profile_picture">
+        </div>
 
         <div class="form-group">
             <label for="email">Primary Email:</label>
@@ -117,6 +181,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="form-group">
             <label for="kld_email">KLD Email:</label>
             <input type="email" class="form-control" id="kld_email" name="kld_email" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Personal Email:</label>
+            <input type="email" class="form-control" id="email" name="email" required>
         </div>
 
         <div class="form-group">
@@ -197,10 +266,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <input type="text" class="form-control" id="degree_or_program" name="degree_or_program">
         </div>
 
-        <div class="form-group">
-            <label for="profile_picture">Profile Picture:</label>
-            <input type="file" class="form-control" id="profile_picture" name="profile_picture">
-        </div>
 
         <div class="form-group text-left">
             <button type="submit" class="btn btn-primary">Save Profile</button>
@@ -208,7 +273,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
 </form>
-
+</div>
 
 <?php include 'footer.php'; ?>
 
