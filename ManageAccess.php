@@ -1,12 +1,92 @@
 <?php 
 require 'session.php'; 
 
+
+
+
+
+// Load Composer's autoloader
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
+require 'PHPMailer/src/Exception.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+// Function to generate a random password
+function generateRandomPassword($length = 8) {
+    return substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, $length);
+}
+
+// Check if the user is verified before sending the email
+function sendVerificationEmail($user, $plainPassword) {
+    $mail = new PHPMailer(true);
+    try {
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'alumnitracker2024@gmail.com';
+        $mail->Password   = 'czeu ishy akdn eeik';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+
+        // Recipients
+        $mail->setFrom('alumnitracker2024@gmail.com', 'KLD Alumni Tracker');
+        $mail->addAddress($user['email'], $user['username']);
+
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = 'KLD Alumni Tracker system access request granted';
+        $mail->Body = ' 
+        Congratulations! Your account has been verified.<br>
+        Your username is: ' . $user['username'] . '<br>
+        Password is: ' . $plainPassword . '<br>
+        Access the link to login: www.google.com';
+        
+        $mail->AltBody = 'Congratulations! Your account has been verified.';
+
+        $mail->send();
+        echo 'Message has been sent';
+    } catch (Exception $e) {
+        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+    }
+}
+
 // Function to verify user access
 function verifyUserAccess($conn, $userId) {
-    $stmt = $conn->prepare("UPDATE users_access SET is_verified = 1 WHERE id = ?");
-    $stmt->bind_param("i", $userId);
-    return $stmt->execute();
+    // Generate a random password and hash it
+    $plainPassword = generateRandomPassword();
+    $hashedPassword = password_hash($plainPassword, PASSWORD_DEFAULT);
+
+    // Update the user's verification status and set the new password
+    $stmt = $conn->prepare("UPDATE users_access SET is_verified = 1,is_active=1, userpassword = ? WHERE id = ?");
+    $stmt->bind_param("si", $hashedPassword, $userId);
+
+    if ($stmt->execute()) {
+        // Fetch user data after verification update
+        $userStmt = $conn->prepare("SELECT * FROM users_access WHERE id = ?");
+        $userStmt->bind_param("i", $userId);
+        $userStmt->execute();
+        $user = $userStmt->get_result()->fetch_assoc();
+
+        // Send email with the plain password if the user is now verified
+        if ($user && $user['is_verified'] == 1) {
+            sendVerificationEmail($user, $plainPassword);
+        }
+        return true;
+    }
+    return false;
 }
+
+
+
+
+
+
+
+
+
 
 // Function to unverify user access
 function unverifyUserAccess($conn, $userId) {
@@ -125,8 +205,7 @@ $unverifiedUsers = $conn->query($unverifiedUsersQuery)->fetch_all(MYSQLI_ASSOC);
 <?php include 'header.php'; ?>
 
 <div class="content container mt-4" id="dashboard-content">
-    <h1>Welcome to the Alumni Tracker Dashboard</h1>
-    <p>Select a menu item to view its content.</p>
+ 
 
     <h2>User Access Management</h2>
 

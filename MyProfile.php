@@ -366,7 +366,7 @@ function submitForm() {
             <img src="image/<?= htmlspecialchars($profile['profile_picture']); ?>" alt="Profile Picture" class="img-thumbnail">
         </div>
         <div class="form-group">
-            <label>Change Profile Picture:</label>
+         
             <input type="file" name="profile_picture" id="imageupload" value='<?= htmlspecialchars($profile['profile_picture']); ?>' class="form-control" style="display:none">
         </div>
  
@@ -374,6 +374,10 @@ function submitForm() {
     <!-- Personal Information -->
     <div class="form-section">
         <h3>Personal Information</h3>
+        <div class='form-group'>
+            <label>Alumni ID:</label>
+            <input type='text' name='fname' class='form-control' value='<?= htmlspecialchars($profile["alumni_id"]) ?>' readonly>
+        </div>
         <div class='form-group'>
             <label>First Name:</label>
             <input type='text' name='fname' class='form-control' value='<?= htmlspecialchars($profile["fname"]) ?>' readonly>

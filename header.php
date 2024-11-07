@@ -21,7 +21,7 @@
                     <li class="nav-item"><a class="nav-link" href="#">Forums</a></li>
                 <?php else: ?>
                     <li class="nav-item"><a class="nav-link" href="dashboard.php">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">My Profile</a></li>
+                    <li class="nav-item"><a class="nav-link" href="MyProfile.php">My Profile</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Job Listing</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Events</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Articles</a></li>

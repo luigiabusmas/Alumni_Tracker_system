@@ -63,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($stmt->execute()) {
                 // Optionally, you can send the default password to the user's email
                 // mail($user_data['email'], "Your Registration", "Your password is: " . $default_password);
-                echo "<div style='color: green;'><strong>Success:</strong> Registration successful. Your login credentials have been created.</div>";
+                echo "<div style='color: green;'><strong>Success:</strong> Registration successful. Your login credentials have been created. Check your registered Email Address for your login credentials</div>";
                 echo "<br/><a href=\"index.php\">Back To login page</a>";
             } else {
                 handleError("Execution failed: " . htmlspecialchars($stmt->error));
