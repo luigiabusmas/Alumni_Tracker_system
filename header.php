@@ -15,17 +15,19 @@
                     <li class="nav-item"><a class="nav-link" href="AlumniProfiles.php">Alumni Profiles</a></li>
                     <li class="nav-item"><a class="nav-link" href="ManageAccess.php">Manage Access</a></li>
                     <li class="nav-item"><a class="nav-link" href="NewsArticle.php">News & Articles</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Job Listing</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Events</a></li>
-          
-                    <li class="nav-item"><a class="nav-link" href="#">Forums</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Events.php">Events</a></li>
+                    <li class="nav-item"><a class="nav-link" href="JobListing.php">Job Listing</a></li>
+                <li class="nav-item"><a class="nav-link" href="Forums.php">Forums</a></li>
+
                 <?php else: ?>
+
                     <li class="nav-item"><a class="nav-link" href="dashboard.php">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="MyProfile.php">My Profile</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Job Listing</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Events</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Articles</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Forums</a></li>
+                    <li class="nav-item"><a class="nav-link" href="NewsArticle.php">News & Articles</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Events.php">Events</a></li>
+                    <li class="nav-item"><a class="nav-link" href="JobListing.php">Job Listing</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Forums.php">Forums</a></li>
+                    
                 <?php endif; ?>
             </ul>
             <div class="dropdown ml-auto">

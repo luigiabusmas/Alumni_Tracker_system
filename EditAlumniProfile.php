@@ -349,16 +349,19 @@ function submitForm() {
  
           
     <div class="form-section d-flex justify-content-between">
-    <div class="text-left">
-        <a href="AlumniProfiles.php" class="btn btn-success">Back to list</a>
-        <button class="btn btn-primary" onclick="makeFormEditable()" id="editButton">Edit Profile</button>
-        <button type="button" id="cancelButton" class="btn btn-primary" style="display:none;" onclick="cancelEdit()">Cancel</button>
-        <!-- Save button triggers form submission programmatically -->
-        <button type="button" id="saveButton" class="btn btn-secondary" style="display:none;" onclick="submitForm()">Save Changes</button>
-    </div>
-    <div class="text-right">
-    <a href="javascript:void(0);" onclick="confirmDelete()" class="btn btn-danger">Delete</a>
-</div>
+                                <div class="text-left">
+                                    <a href="AlumniProfiles.php" class="btn btn-success">Back to list</a>
+                                    <button class="btn btn-primary" onclick="makeFormEditable()" id="editButton">Edit Profile</button>
+                                    <button type="button" id="cancelButton" class="btn btn-primary" style="display:none;" onclick="cancelEdit()">Cancel</button>
+                                    <!-- Save button triggers form submission programmatically -->
+                                    <button type="button" id="saveButton" class="btn btn-secondary" style="display:none;" onclick="submitForm()">Save Changes</button>
+                                </div>
+
+
+                                        <div class="text-right">
+                                        <a href="javascript:void(0);" onclick="confirmDelete()" class="btn btn-danger">Delete</a>
+                                    </div>
+                    </div>
 <script>
 function confirmDelete() {
     const confirmDelete = confirm("Are you sure you want to delete this profile?");

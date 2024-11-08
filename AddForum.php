@@ -7,10 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $title = mysqli_real_escape_string($conn, $_POST['title']);
     $content = mysqli_real_escape_string($conn, $_POST['content']);
     $author_id = mysqli_real_escape_string($conn, $_POST['author_id']);
-    $published_at = mysqli_real_escape_string($conn, $_POST['published_at']);
     $status = mysqli_real_escape_string($conn, $_POST['status']);
-    $start_date = mysqli_real_escape_string($conn, $_POST['start_date']);
-    $end_date = mysqli_real_escape_string($conn, $_POST['end_date']);
     $created_at = date('Y-m-d H:i:s');
     $updated_at = $created_at;
 
@@ -37,14 +34,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    // Insert data into the database
-    $sql = "INSERT INTO newsarticle (title, content, author_id, published_at, status, start_date, end_date, image, created_at, updated_at) 
-            VALUES ('$title', '$content', '$alumni_id', '$published_at', '$status', '$start_date', '$end_date', '$image', '$created_at', '$updated_at')";
+    // Insert data into the forums table
+    $sql = "INSERT INTO forums (title, content, author_id, status, image, created_at, updated_at) 
+            VALUES ('$title', '$content', '$alumni_id', '$status', '$image', '$created_at', '$updated_at')";
 
     if (mysqli_query($conn, $sql)) {
         echo "<script>
-        alert('New news article created successfully.');
-        window.location.href = 'AddNewsArticle.php'; // Redirect to clear form after submission
+        alert('New forum post created successfully.');
+        window.location.href = 'AddForum.php'; // Redirect to clear form after submission
       </script>";
     } else {
         echo "Error: " . $sql . "<br>" . mysqli_error($conn);
@@ -57,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create News Article</title>
+    <title>Create Forum Post</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="./resources/styles.css"> 
     <link rel="stylesheet" href="./resources/dashboard.css"> 
@@ -116,57 +113,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <?php include 'header.php'; ?>
 
 <div class="container mt-5">
-<form action="AddNewsArticle.php" method="POST" enctype="multipart/form-data">
+<form action="AddForum.php" method="POST" enctype="multipart/form-data">
     <div class="container">
-        <h2>Create News Article</h2>
+        <h2>Create Forum Post</h2>
 
         <div class="form-section">
-            <h3>Article Details</h3>
+            <h3>Post Details</h3>
             <!-- Title Input -->
             <div class="form-group">
-                <label for="title">Article Title:</label>
+                <label for="title">Post Title:</label>
                 <input type="text" class="form-control" id="title" name="title" required>
             </div>
 
             <!-- Content Textarea -->
             <div class="form-group">
-                <label for="content">Article Content:</label>
+                <label for="content">Post Content:</label>
                 <textarea class="form-control" id="content" name="content" rows="5" required></textarea>
             </div>
 
-
-            <!-- Published Date Input -->
-            <div class="form-group">
-                <label for="published_at">Published Date:</label>
-                <input type="datetime-local" class="form-control" id="published_at" name="published_at">
-            </div>
+            <!-- Author ID Input (hidden) -->
+            <input type="hidden" name="author_id" value="<?php echo $user_id; ?>"> <!-- Replace with dynamic value from session -->
 
             <!-- Status Dropdown -->
             <div class="form-group">
                 <label for="status">Status:</label>
                 <select class="form-control" id="status" name="status">
-                    <option value="Draft">Draft</option>
-                    <option value="Published">Published</option>
+                    <option value="Open">Open</option>
+                    <option value="Closed">Closed</option>
                     <option value="Archived">Archived</option>
                 </select>
-            </div>
-
-            <!-- Start Date Input -->
-            <div class="form-group">
-                <label for="start_date">Start Date:</label>
-                <input type="datetime-local" class="form-control" id="start_date" name="start_date">
-            </div>
-
-            <!-- End Date Input -->
-            <div class="form-group">
-                <label for="end_date">End Date:</label>
-                <input type="datetime-local" class="form-control" id="end_date" name="end_date">
             </div>
 
             <!-- Image Upload -->
             <div class="form-group">
                 <label for="image">Upload Image:</label>
-                <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+                <input type="file" class="form-control" id="image" name="image" accept="image/*">
             </div>
         </div>
 
@@ -175,8 +156,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <input type="hidden" name="updated_at" value="<?php echo date('Y-m-d H:i:s'); ?>">
 
         <div class="text-center">
-            <button type="submit" class="btn btn-primary">Create Article</button>
-            <a href="NewsArticle.php" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Create Post</button>
+            <a href="Forum.php" class="btn btn-secondary">Cancel</a>
         </div>
     </div>
 </form>

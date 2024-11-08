@@ -12,11 +12,12 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $username = $_SESSION['username'];
 
+
 // Prepare and execute the statement to fetch alumni_id and is_admin
-$stmt = $conn->prepare("SELECT alumni_id, is_admin FROM users_access WHERE id = ?");
+$stmt = $conn->prepare("SELECT alumni_id, is_admin,alumni_id FROM users_access WHERE id = ?");
 $stmt->bind_param("s", $user_id);
 $stmt->execute();
-$stmt->bind_result($alumni_id, $is_admin);
+$stmt->bind_result($alumni_id, $is_admin,$alumni_id);
 $stmt->fetch();
 $stmt->close();
 

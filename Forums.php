@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job Listings Dashboard</title>
+    <title>Forum Threads Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="./resources/styles.css"> 
     <link rel="stylesheet" href="./resources/dashboard.css">
@@ -18,31 +18,28 @@
 <?php include 'header.php'; ?>
 
 <div class="content container mt-4" id="dashboard-content">
-    <h1>Job Listings</h1>
-    <a href="AddJobListing.php" class="btn btn-success">Add Job Listing</a>
-    <p>Below are the latest job listings available in the system.</p>
+    <h1>Forum Threads</h1>
+    <a href="AddForum.php" class="btn btn-success">Add New Thread</a>
+    <p>Below are the latest forum threads available in the system.</p>
     
-    <table id="jobsTable" class="display">
+    <table id="forumTable" class="display">
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Company Name:</th>
-                <th>Job Title</th>
-                <th>Job Type</th>
-                <th>Experience Level</th>
-                <th>Related Program</th>
-                <th>Related Courses</th>
+                <th>Title</th>
+                <th>Content</th>
+                <th>Image</th>
                 <th>Author</th>
                 <th>Status</th>
-                <th>Start Date</th>
-                <th>End Date</th>
+                <th>Created At</th>
+                <th>Updated At</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
             <?php
-            // Connect to your database and fetch job listings
-            $query = "SELECT * FROM `job_listings`";
+            // Connect to your database and fetch forum threads
+            $query = "SELECT * FROM `forums`";
             $result = $conn->query($query);
             
             if ($result && $result->num_rows > 0) {
@@ -55,26 +52,21 @@
                     
                     echo "<tr>";
                     echo "<td>" . $row['id'] . "</td>";
-                    echo "<td>" . $row['company_name'] . "</td>";
                     echo "<td>" . $row['title'] . "</td>";
-                    echo "<td>" . $row['job_type'] . "</td>";
-                    echo "<td>" . $row['experience_level'] . "</td>";
-                    echo "<td>" . $row['program'] . "</td>";
-                    echo "<td>" . $row['courses'] . "</td>";
-                    echo "<td>" . ($row ? $row['author_id'] : 'Unknown') . "</td>"; // Display author's username
+                    echo "<td>" . $row['content'] . "</td>";
+                    echo "<td>" . ($row['image'] ? "<img src='" . $row['image'] . "' alt='Thread Image' width='50'>" : 'No Image') . "</td>";
+                    echo "<td>" . ($author ? $author['username'] : 'Unknown') . "</td>";
                     echo "<td>" . $row['status'] . "</td>";
-               
-   
-                    echo "<td>" . $row['start_date'] . "</td>";
-                    echo "<td>" . $row['end_date'] . "</td>";
+                    echo "<td>" . $row['created_at'] . "</td>";
+                    echo "<td>" . $row['updated_at'] . "</td>";
                     echo "<td>
-                        <a href='ViewJobListing.php?id=" . $row['id'] . "' class='btn btn-primary'>View</a>
-                        <a href='EditJobListing.php?id=" . $row['id'] . "' class='btn btn-secondary'>Edit</a>
+                        <a href='ViewForums.php?id=" . $row['id'] . "' class='btn btn-primary'>View</a>
+                        <a href='EditForums.php?id=" . $row['id'] . "' class='btn btn-secondary'>Edit</a>
                     </td>";
                     echo "</tr>";
                 }
             } else {
-                echo "<tr><td colspan='9'>No job listings found.</td></tr>";
+                echo "<tr><td colspan='9'>No forum threads found.</td></tr>";
             }
             ?>
         </tbody>
@@ -93,7 +85,7 @@
 
 <script>
     $(document).ready(function() {
-        $('#jobsTable').DataTable(); // Apply DataTables functionality
+        $('#forumTable').DataTable(); // Apply DataTables functionality
     });
 </script>
 

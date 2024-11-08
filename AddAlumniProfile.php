@@ -269,7 +269,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <div class="form-group text-left">
             <button type="submit" class="btn btn-primary">Save Profile</button>
-            <a href="alumniDashboard.php" class="btn btn-secondary">Cancel</a>
+            <a href="AlumniProfiles.php" class="btn btn-secondary">Cancel</a>
         </div>
     </div>
 </form>
