@@ -41,7 +41,19 @@
                     <p class="dropdown-item"><strong>Alumni ID:</strong> <?php echo htmlspecialchars($alumni_id); ?></p>
                     <p class="dropdown-item"><strong>Username:</strong> <?php echo htmlspecialchars($username); ?></p>
                     <p class="dropdown-item"><strong>Role:</strong> <?php echo $is_admin ? 'Admin' : 'User'; ?></p>
-                    <a href="logout.php" class="dropdown-item">Logout</a>
+                    <a href="#" class="dropdown-item" onclick="return confirmLogout()">Logout</a>
+
+<script>
+    function confirmLogout() {
+        var confirmAction = confirm("Are you sure you want to logout?");
+        if (confirmAction) {
+            window.location.href = 'Survey.php'; // Redirect to logout if confirmed
+        } else {
+            return false; // Prevent the default action (logout) if cancelled
+        }
+    }
+</script>
+
                 </div>
             </div>
         </div>
