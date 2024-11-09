@@ -427,10 +427,23 @@ function submitForm() {
             <label>Graduation Year:</label>
             <input type='text' name='graduation_year' class='form-control' value='<?= htmlspecialchars($profile["graduation_year"]) ?>' readonly>
         </div>
-        <div class='form-group'>
-            <label>Degree Obtained:</label>
-            <input type='text' name='degree_obtained' class='form-control' value='<?= htmlspecialchars($profile["degree_obtained"]) ?>' readonly>
-        </div>
+        <div class="form-group">
+    <label for="degree_obtained">Degree Obtained:</label>
+    <select class="form-control" id="degree_obtained" name="degree_obtained" readonly>
+        <option value="" disabled>Select Degree</option>
+        <option value="Bachelor of Science in Computer Science" <?= $profile['degree_obtained'] == 'Bachelor of Science in Computer Science' ? 'selected' : '' ?>>Bachelor of Science in Computer Science</option>
+        <option value="Bachelor of Science in Information Technology" <?= $profile['degree_obtained'] == 'Bachelor of Science in Information Technology' ? 'selected' : '' ?>>Bachelor of Science in Information Technology</option>
+        <option value="Bachelor of Business Administration" <?= $profile['degree_obtained'] == 'Bachelor of Business Administration' ? 'selected' : '' ?>>Bachelor of Business Administration</option>
+        <option value="Bachelor of Science in Mechanical Engineering" <?= $profile['degree_obtained'] == 'Bachelor of Science in Mechanical Engineering' ? 'selected' : '' ?>>Bachelor of Science in Mechanical Engineering</option>
+        <option value="Bachelor of Science in Electrical Engineering" <?= $profile['degree_obtained'] == 'Bachelor of Science in Electrical Engineering' ? 'selected' : '' ?>>Bachelor of Science in Electrical Engineering</option>
+        <option value="Bachelor of Science in Civil Engineering" <?= $profile['degree_obtained'] == 'Bachelor of Science in Civil Engineering' ? 'selected' : '' ?>>Bachelor of Science in Civil Engineering</option>
+        <option value="Bachelor of Marketing" <?= $profile['degree_obtained'] == 'Bachelor of Marketing' ? 'selected' : '' ?>>Bachelor of Marketing</option>
+        <option value="Bachelor of Finance" <?= $profile['degree_obtained'] == 'Bachelor of Finance' ? 'selected' : '' ?>>Bachelor of Finance</option>
+        <option value="Bachelor of Nursing" <?= $profile['degree_obtained'] == 'Bachelor of Nursing' ? 'selected' : '' ?>>Bachelor of Nursing</option>
+        <option value="Bachelor of Psychology" <?= $profile['degree_obtained'] == 'Bachelor of Psychology' ? 'selected' : '' ?>>Bachelor of Psychology</option>
+        <option value="Bachelor of Education" <?= $profile['degree_obtained'] == 'Bachelor of Education' ? 'selected' : '' ?>>Bachelor of Education</option>
+    </select>
+</div>
         <div class='form-group'>
             <label>Employment Status:</label>
             <select name='employment_status' class='form-control' <?= isset($profile["employment_status"]) ? 'disabled' : '' ?>>
