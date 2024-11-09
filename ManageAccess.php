@@ -103,6 +103,7 @@ function deleteUser($conn, $userId) {
 }
 
 // Function to add user by alumni_id
+// Function to add user by alumni_id
 function addUserByAlumniId($conn, $alumniId) {
     // Check if alumni_id exists in alumni_profile_table
     $stmt = $conn->prepare("SELECT * FROM alumni_profile_table WHERE alumni_id = ?");
@@ -111,21 +112,32 @@ function addUserByAlumniId($conn, $alumniId) {
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        $alumniData = $result->fetch_assoc();
+        // Check if alumni_id already exists in users_access table
+        $checkStmt = $conn->prepare("SELECT * FROM users_access WHERE alumni_id = ?");
+        $checkStmt->bind_param("s", $alumniId);
+        $checkStmt->execute();
+        $checkResult = $checkStmt->get_result();
 
-        // Prepare to insert into users_access
-        $insertStmt = $conn->prepare("INSERT INTO users_access (alumni_id, username, email, is_verified, is_active) VALUES (?, ?, ?, 0, 0)");
-        $insertStmt->bind_param("sss", $alumniData['alumni_id'], $alumniData['alumni_id'], $alumniData['email']);
-        
-        if ($insertStmt->execute()) {
-            $_SESSION['notification'] = "User added successfully.";
+        if ($checkResult->num_rows > 0) {
+            $_SESSION['notification'] = "This Alumni ID has already been added.";
         } else {
-            $_SESSION['notification'] = "Failed to add user.";
+            $alumniData = $result->fetch_assoc();
+
+            // Prepare to insert into users_access
+            $insertStmt = $conn->prepare("INSERT INTO users_access (alumni_id, username, email, is_verified, is_active) VALUES (?, ?, ?, 0, 0)");
+            $insertStmt->bind_param("sss", $alumniData['alumni_id'], $alumniData['alumni_id'], $alumniData['email']);
+
+            if ($insertStmt->execute()) {
+                $_SESSION['notification'] = "User added successfully.";
+            } else {
+                $_SESSION['notification'] = "Failed to add user.";
+            }
         }
     } else {
         $_SESSION['notification'] = "Invalid Alumni ID.";
     }
 }
+
 
 // Handle GET requests for verification, unverification, and delete
 if (isset($_GET['action']) && isset($_GET['id'])) {
@@ -207,26 +219,40 @@ $unverifiedUsers = $conn->query($unverifiedUsersQuery)->fetch_all(MYSQLI_ASSOC);
 <div class="content container mt-4" id="dashboard-content">
  
 
-    <h2>User Access Management</h2>
+
 
     <div class="row">
-        <!-- Add User Section -->
-        <div class="col-md-12">
-            <h3>Add User by Alumni ID</h3>
-            <form action="ManageAccess.php" method="POST">
-                <div class="form-group">
-                    <label for="alumni_id">Alumni ID:</label>
-                    <input type="text" class="form-control" id="alumni_id" name="alumni_id" required>
-                </div>
-                <button type="submit" class="btn btn-success">Add User</button>
-            </form>
-            <?php if (isset($_SESSION['notification'])): ?>
-                <div class="alert alert-info mt-3">
-                    <?php echo $_SESSION['notification']; unset($_SESSION['notification']); ?>
-                </div>
-            <?php endif; ?>
-        </div>
+    <!-- Add User Section -->
+    <div class="col-md-12">
+        <h3>Add User by Alumni ID</h3>
+        <form action="ManageAccess.php" method="POST" onsubmit="return validateAlumniId()">
+            <div class="form-group">
+                <label for="alumni_id">Alumni ID:</label>
+                <input type="text" class="form-control" id="alumni_id" name="alumni_id" placeholder="Please enter a valid alumni ID in the format 'KLDAA-#########' (e.g., KLDAA-202400001" required>
+               
+            </div>
+            <button type="submit" class="btn btn-success">Add User</button>
+        </form>
+        <?php if (isset($_SESSION['notification'])): ?>
+            <div class="alert alert-info mt-3">
+                <?php echo $_SESSION['notification']; unset($_SESSION['notification']); ?>
+            </div>
+        <?php endif; ?>
     </div>
+</div>
+<br>
+<script>
+    function validateAlumniId() {
+        var alumniId = document.getElementById("alumni_id").value;
+        var alumniIdPattern = /^KLDAA-\d{9}$/;  // Regex to match "KLDAA-" followed by 9 digits
+
+        if (!alumniIdPattern.test(alumniId)) {
+            alert("Please enter a valid alumni ID in the format 'KLDAA-#########' (e.g., KLDAA-202400001).");
+            return false;  // Prevent form submission if validation fails
+        }
+        return true;  // Allow form submission if validation passes
+    }
+</script>
 
     <div class="row">
         <!-- Verified Users Column -->
