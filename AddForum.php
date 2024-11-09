@@ -138,8 +138,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="form-group">
                 <label for="status">Status:</label>
                 <select class="form-control" id="status" name="status">
-                    <option value="Open">Open</option>
-                    <option value="Closed">Closed</option>
+                    <option value="Open" selected>Open</option>
+                    <option value="Closed" >Closed</option>
                     <option value="Archived">Archived</option>
                 </select>
             </div>
@@ -147,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <!-- Image Upload -->
             <div class="form-group">
                 <label for="image">Upload Image:</label>
-                <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
             </div>
         </div>
 
