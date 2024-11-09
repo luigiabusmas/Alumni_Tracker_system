@@ -224,7 +224,7 @@ $selectedCoursesFromDB = explode(',', $job['courses']); // Convert CSV from DB i
 
         <div class="form-group">
             <label for="description">Job Description</label>
-            <textarea id="description" name="description" class="form-control" rows="4" required><?php echo $job['description']; ?></textarea>
+            <textarea id="description" required name="description" class="form-control" rows="4" required><?php echo $job['description']; ?></textarea>
         </div>
 
         <div class="form-group">
@@ -317,12 +317,12 @@ $selectedCoursesFromDB = explode(',', $job['courses']); // Convert CSV from DB i
 
         <div class="form-group">
             <label for="start_date">Start Date</label>
-            <input type="datetime-local" id="start_date" name="start_date" class="form-control" value="<?php echo $job['start_date']; ?>">
+            <input type="datetime-local" id="start_date" name="start_date" class="form-control" value="<?php echo $job['start_date']; ?>" required>
         </div>
 
         <div class="form-group">
             <label for="end_date">End Date</label>
-            <input type="datetime-local" id="end_date" name="end_date" class="form-control" value="<?php echo $job['end_date']; ?>">
+            <input type="datetime-local" id="end_date" name="end_date" class="form-control" value="<?php echo $job['end_date']; ?>" required>
         </div>
 
         <div class="text-center">
@@ -382,6 +382,29 @@ const selectedCoursesFromDB = <?php echo json_encode($selectedCoursesFromDB); ?>
 // Initialize the dropdowns with hidden input fields and selected values from the DB
 initDropdownCheckbox('program-dropdown', 'selectedPrograms', selectedProgramsFromDB);
 initDropdownCheckbox('courses-dropdown', 'selectedCourses', selectedCoursesFromDB);
+
+
+document.querySelector('form').addEventListener('submit', function(event) {
+    const startDate = document.getElementById('start_date').value;
+    const endDate = document.getElementById('end_date').value;
+
+    // Get current date and time
+    const currentDate = new Date().toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM
+
+    // Validate if start date is not in the past
+    if (startDate < currentDate) {
+        alert('Start date cannot be in the past.');
+        event.preventDefault(); // Prevent form submission
+        return;
+    }
+
+    // Validate if end date is after start date
+    if (endDate && endDate <= startDate) {
+        alert('End date must be after the start date.');
+        event.preventDefault(); // Prevent form submission
+        return;
+    }
+});
 </script>
 
 

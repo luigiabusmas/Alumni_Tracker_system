@@ -188,7 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="form-group">
             <label for="job_type">Job Type</label>
             <select id="job_type" name="job_type" class="form-control">
-                <option value="Full-Time">Full-Time</option>
+                <option value="Full-Time" selected>Full-Time</option>
                 <option value="Part-Time">Part-Time</option>
                 <option value="Contract">Contract</option>
                 <option value="Temporary">Temporary</option>
@@ -202,13 +202,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <div class="form-group">
             <label for="salary_range">Salary Range</label>
-            <input type="text" id="salary_range" name="salary_range" class="form-control">
+            <input type="text" id="salary_range" name="salary_range" class="form-control" required>
         </div>
 
         <div class="form-group">
             <label for="experience_level">Experience Level</label>
             <select id="experience_level" name="experience_level" class="form-control">
-                <option value="Entry Level">Entry Level</option>
+                <option value="Entry Level" selected>Entry Level</option>
                 <option value="Mid Level">Mid Level</option>
                 <option value="Senior Level">Senior Level</option>
             </select>
@@ -261,7 +261,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="form-group">
             <label for="status">Status</label>
             <select id="status" name="status" class="form-control">
-                <option value="Draft">Open</option>
+                <option value="Draft" selected>Open</option>
                 <option value="Published">Close</option>
                 <option value="Closed">Draft</option>
             </select>
@@ -274,7 +274,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <div class="form-group">
             <label for="end_date">End Date</label>
-            <input type="datetime-local" id="end_date" name="end_date" class="form-control">
+            <input type="datetime-local" id="end_date" name="end_date" class="form-control" required>
         </div>
 
 
@@ -326,6 +326,29 @@ function initDropdownCheckbox(id, hiddenInputId) {
 // Initialize the dropdowns with hidden input fields
 initDropdownCheckbox('program-dropdown', 'selectedPrograms');
 initDropdownCheckbox('courses-dropdown', 'selectedCourses');
+
+
+document.querySelector('form').addEventListener('submit', function(event) {
+    const startDate = document.getElementById('start_date').value;
+    const endDate = document.getElementById('end_date').value;
+
+    // Get current date and time
+    const currentDate = new Date().toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM
+
+    // Validate if start date is not in the past
+    if (startDate < currentDate) {
+        alert('Start date cannot be in the past.');
+        event.preventDefault(); // Prevent form submission
+        return;
+    }
+
+    // Validate if end date is after start date
+    if (endDate && endDate <= startDate) {
+        alert('End date must be after the start date.');
+        event.preventDefault(); // Prevent form submission
+        return;
+    }
+});
 
 </script>
 
