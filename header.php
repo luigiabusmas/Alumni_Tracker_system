@@ -10,7 +10,8 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav" id="navbar-links">
                 <?php if ($is_admin): ?>
-                    <li class="nav-item"><a class="nav-link" href="dashboard.php">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Home.php">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="dashboard.php">Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link" href="MyProfile.php">My Profile</a></li>
                     <li class="nav-item"><a class="nav-link" href="AlumniProfiles.php">Alumni Profiles</a></li>
                     <li class="nav-item"><a class="nav-link" href="ManageAccess.php">Manage Access</a></li>
@@ -21,7 +22,7 @@
 
                 <?php else: ?>
 
-                    <li class="nav-item"><a class="nav-link" href="dashboard.php">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Home.php">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="MyProfile.php">My Profile</a></li>
                     <li class="nav-item"><a class="nav-link" href="NewsArticle.php">News & Articles</a></li>
                     <li class="nav-item"><a class="nav-link" href="Events.php">Events</a></li>
