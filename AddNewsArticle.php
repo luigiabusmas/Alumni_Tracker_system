@@ -1,4 +1,4 @@
-<?php 
+<?php  
 require 'session.php'; 
 
 // Check if the form is submitted
@@ -6,7 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Sanitize and validate input data
     $title = mysqli_real_escape_string($conn, $_POST['title']);
     $content = mysqli_real_escape_string($conn, $_POST['content']);
-    $author_id = mysqli_real_escape_string($conn, $_POST['author_id']);
+ 
     $published_at = mysqli_real_escape_string($conn, $_POST['published_at']);
     $status = mysqli_real_escape_string($conn, $_POST['status']);
     $start_date = mysqli_real_escape_string($conn, $_POST['start_date']);
@@ -35,6 +35,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             echo "<script>alert('Invalid image format. Only jpg, jpeg, png, and gif are allowed.');</script>";
         }
+    }
+
+    // Validate start_date and end_date
+    $today = date('Y-m-d\TH:i'); // Current date in 'YYYY-MM-DDTHH:MM' format
+    if ($start_date < $today) {
+        echo "<script>alert('Start Date cannot be in the past. Please select today or a future date.');</script>";
+      
+    }
+    if ($end_date <= $start_date) {
+        echo "<script>alert('End Date must be greater than Start Date.');</script>";
+ 
     }
 
     // Insert data into the database
@@ -118,6 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <div class="container mt-5">
 <form action="AddNewsArticle.php" method="POST" enctype="multipart/form-data">
     <div class="container">
+    <a href="NewsArticle.php" class="btn btn-secondary">Back to list</a>
         <h2>Create News Article</h2>
 
         <div class="form-section">
@@ -134,18 +146,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <textarea class="form-control" id="content" name="content" rows="5" required></textarea>
             </div>
 
-
             <!-- Published Date Input -->
             <div class="form-group">
-                <label for="published_at">Published Date:</label>
-                <input type="datetime-local" class="form-control" id="published_at" name="published_at">
+      
+                <input type="hidden" class="form-control" id="published_at" name="published_at" value="<?php echo date('Y-m-d\TH:i'); ?>" required>
             </div>
 
             <!-- Status Dropdown -->
             <div class="form-group">
                 <label for="status">Status:</label>
                 <select class="form-control" id="status" name="status">
-                    <option value="Draft">Draft</option>
+                    <option value="Draft" selected>Draft</option>
                     <option value="Published">Published</option>
                     <option value="Archived">Archived</option>
                 </select>
@@ -154,13 +165,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <!-- Start Date Input -->
             <div class="form-group">
                 <label for="start_date">Start Date:</label>
-                <input type="datetime-local" class="form-control" id="start_date" name="start_date">
+                <input type="datetime-local" class="form-control" id="start_date" name="start_date" min="<?php echo date('Y-m-d\TH:i'); ?>" required>
             </div>
 
             <!-- End Date Input -->
             <div class="form-group">
                 <label for="end_date">End Date:</label>
-                <input type="datetime-local" class="form-control" id="end_date" name="end_date">
+                <input type="datetime-local" class="form-control" id="end_date" name="end_date" min="<?php echo date('Y-m-d\TH:i'); ?>" required>
             </div>
 
             <!-- Image Upload -->

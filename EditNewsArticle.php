@@ -1,7 +1,6 @@
 <?php 
 require 'session.php'; 
 
-
 // Check if the article ID is provided
 if (isset($_GET['id'])) {
     $article_id = mysqli_real_escape_string($conn, $_GET['id']);
@@ -18,7 +17,7 @@ if (isset($_GET['id'])) {
     }
 } else {
     echo "<script>alert('No article ID provided.'); window.location.href = 'NewsArticle.php';</script>";
-    exit;
+
 }
 
 // Handle form submission for updating the article
@@ -31,6 +30,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $start_date = mysqli_real_escape_string($conn, $_POST['start_date']);
     $end_date = mysqli_real_escape_string($conn, $_POST['end_date']);
     $updated_at = date('Y-m-d H:i:s');
+
+    // Validate start_date and end_date
+    $today = date('Y-m-d\TH:i'); // Current date in 'YYYY-MM-DDTHH:MM' format
+    if ($start_date < $today) {
+     
+        echo "<script>
+        alert('Start Date cannot be in the past. Please select today or a future date.');
+        window.location.href = 'EditNewsArticle.php?id=$article_id';
+      </script>";
+      return;
+    }
+    if ($end_date <= $start_date) {
+
+        echo "<script>
+        alert('End Date must be greater than Start Date.');
+        window.location.href = 'EditNewsArticle.php?id=$article_id';
+      </script>";
+      return;
+    }
 
     // Image upload handling
     $image = $article['image']; // Retain old image if not updated
@@ -121,32 +139,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <?php include 'header.php'; ?>
 
 <div class="container">
-                    <div class="form-section d-flex justify-content-between">
-                                <div class="text-left">
-                                    <a href="NewsArticle.php" class="btn btn-success">Back to list</a>
-                        
-                                </div>
+    <div class="form-section d-flex justify-content-between">
+        <div class="text-left">
+            <a href="NewsArticle.php" class="btn btn-success">Back to list</a>
+        </div>
 
+        <div class="text-right">
+            <a href="DeleteNewsArticle.php?id=<?php echo htmlspecialchars($article['id']); ?>"  
+            class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this article? This action cannot be undone.');">Delete</a>
+        </div>
+    </div>
 
-                                        <div class="text-right">
-                                        <a href="DeleteNewsArticle.php?id=<?php echo htmlspecialchars($article['id']); ?>"  
-                                        class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this article? This action cannot be undone.');">Delete</a>
-                                    </div>
-                    </div>
     <div class="form-section">
         <h2>Edit News Article</h2>
-                  
-
         <form action="EditNewsArticle.php?id=<?php echo $article_id; ?>" method="POST" enctype="multipart/form-data">
-                        <!-- Image Upload -->
-                        <div class="form-group">
-                        <?php if (!empty($article['image'])): ?>
+            <!-- Image Upload -->
+            <div class="form-group">
+                <?php if (!empty($article['image'])): ?>
                     <p>Current Image: <img src="image/<?php echo $article['image']; ?>" alt="Current Image" style="max-height: 100px;"></p>
                 <?php endif; ?>
                 <label for="image">Upload New Image:</label>
                 <input type="file" class="form-control" id="image" name="image" accept="image/*">
-          
             </div>
+
             <!-- Title Input -->
             <div class="form-group">
                 <label for="title">Article Title:</label>
@@ -162,13 +177,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <!-- Author ID Input -->
             <div class="form-group">
                 <label for="author_id">Author ID:</label>
-                <input type="text" class="form-control" id="author_id" name="author_id" value="<?php echo htmlspecialchars($article['author_id']); ?>" readonly>
+                <input type="hidden" class="form-control" id="author_id" name="author_id" value="<?php echo htmlspecialchars($article['author_id']); ?>" readonly>
             </div>
 
             <!-- Published Date Input -->
             <div class="form-group">
                 <label for="published_at">Published Date:</label>
-                <input type="datetime-local" class="form-control" id="published_at" name="published_at" value="<?php echo date('Y-m-d\TH:i', strtotime($article['published_at'])); ?>">
+                <input type="hidden" class="form-control" id="published_at" name="published_at" value="<?php echo date('Y-m-d\TH:i', strtotime($article['published_at'])); ?>">
             </div>
 
             <!-- Status Dropdown -->
@@ -184,20 +199,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <!-- Start Date Input -->
             <div class="form-group">
                 <label for="start_date">Start Date:</label>
-                <input type="datetime-local" class="form-control" id="start_date" name="start_date" value="<?php echo date('Y-m-d\TH:i', strtotime($article['start_date'])); ?>">
+                <input type="datetime-local" class="form-control" id="start_date" name="start_date" value="<?php echo date('Y-m-d\TH:i', strtotime($article['start_date'])); ?>" required>
             </div>
 
             <!-- End Date Input -->
             <div class="form-group">
                 <label for="end_date">End Date:</label>
-                <input type="datetime-local" class="form-control" id="end_date" name="end_date" value="<?php echo date('Y-m-d\TH:i', strtotime($article['end_date'])); ?>">
+                <input type="datetime-local" class="form-control" id="end_date" name="end_date" value="<?php echo date('Y-m-d\TH:i', strtotime($article['end_date'])); ?>" required>
             </div>
 
-
-
-            <div class="text-center">
+            <!-- Submit Button -->
+            <div class="form-group text-center">
                 <button type="submit" class="btn btn-primary">Update Article</button>
-                <a href="NewsArticle.php" class="btn btn-secondary">Cancel</a>
             </div>
         </form>
     </div>
