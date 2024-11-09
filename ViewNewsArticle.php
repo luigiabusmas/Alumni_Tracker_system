@@ -1,7 +1,6 @@
 <?php 
 require 'session.php'; 
 
-
 // Check if the article ID is provided
 if (isset($_GET['id'])) {
     $article_id = mysqli_real_escape_string($conn, $_GET['id']);
@@ -50,6 +49,8 @@ if (isset($_GET['id'])) {
         }
         .article-section h2 {
             color: #007bff;
+            font-size: 28px;
+            margin-bottom: 20px;
         }
         .article-detail {
             margin-bottom: 15px;
@@ -57,6 +58,29 @@ if (isset($_GET['id'])) {
         .article-detail label {
             font-weight: bold;
             color: #555;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .article-detail p {
+            color: #333;
+            margin: 5px 0;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6368;
+        }
+        .img-fluid {
+            max-width: 100%;
+            height: auto;
+        }
+        .text-center {
+            text-align: center;
         }
     </style>
 </head>
@@ -65,13 +89,13 @@ if (isset($_GET['id'])) {
 <?php include 'header.php'; ?>
 
 <div class="container">
-<div class="text-left mt-4">
-            <a href="NewsArticle.php" class="btn btn-secondary">Back to Articles List</a>
-        </div>
+    
+    <div class="text-left mt-4">
+        <a href="NewsArticle.php" class="btn btn-secondary">Back to Articles List</a>
+    </div>
     <div class="article-section">
         
-        <!-- Back Button -->
-
+        <!-- Article Title -->
         <h2><?php echo htmlspecialchars($article['title']); ?></h2>
         
         <!-- Article Image -->

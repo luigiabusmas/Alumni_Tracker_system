@@ -196,6 +196,7 @@ $selectedCoursesFromDB = explode(',', $job['courses']); // Convert CSV from DB i
 <?php include 'header.php'; ?>
 
 <div class="container">
+    
     <h2>Edit Job Listing</h2> 
  
     <div class="form-section d-flex justify-content-between">
@@ -211,6 +212,7 @@ $selectedCoursesFromDB = explode(',', $job['courses']); // Convert CSV from DB i
                                         </div>
                     </div>
 
+                    <div class="form-section">
     <form action="" method="POST">
         <div class="form-group">
             <label for="title">Job Title</label>
@@ -330,6 +332,7 @@ $selectedCoursesFromDB = explode(',', $job['courses']); // Convert CSV from DB i
             <a href="JobListing.php" class="btn btn-secondary">Cancel</a>
         </div>
     </form>
+    </div>
 </div>
 
 <?php include 'footer.php'; ?>

@@ -10,7 +10,7 @@
 
             if ($result && $result->num_rows > 0) {
                 $thread = $result->fetch_assoc();
-                echo "<h1>Edit Forum Thread</h1>";
+                // echo "<h1>Edit Forum Thread</h1>";
 
                 // Display the edit form with current thread data
                 ?>
@@ -24,46 +24,84 @@
     <link rel="stylesheet" href="./resources/styles.css">
     <link rel="stylesheet" href="./resources/dashboard.css">
     <style>
-        .form-group textarea { padding: 6px; }
-        .btn { padding: 4px 10px; font-size: 0.9rem; }
-        hr { margin: 10px 0; }
+        body {
+            background-color: #f4f7fa;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-section {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 30px;
+        }
+        .form-section h2 {
+            color: #007bff;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .btn {
+            padding: 8px 15px;
+            font-size: 0.9rem;
+        }
+        hr {
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
 
 <?php include 'header.php'; ?>
 
-<div class="content container mt-4">
-<div class="form-section d-flex justify-content-between">
-                                    <div class="text-left">
-                                        <a href="Forums.php" class="btn btn-success">Back to list</a>
-                            
-                                    </div>
 
+<div class="container">
+    <div class="form-section d-flex justify-content-between">
+        <div class="text-left">
+            <a href="Forums.php" class="btn btn-success">Back to list</a>
+        </div>
+        <div class="text-right">
+            <a href="DeleteForums.php?id=<?php echo htmlspecialchars($thread['id']); ?>"  
+               class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this Thread? This action cannot be undone.');">Delete</a>
+        </div>
+    </div>
 
-                                            <div class="text-right">
-                                            <a href="DeleteForums.php?id=<?php echo htmlspecialchars($thread['id']); ?>"  
-                                            class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this Thread? This action cannot be undone.');">Delete</a>
-                                        </div>
-                    </div>
+    <div class="form-section">
 
-                
+        <form method="POST" action="" enctype="multipart/form-data">
+            <!-- Image Upload -->
+            <div class="form-group">
+                <label for="image">Image:</label>
                 <p>Current Image: <img src="image/<?php echo htmlspecialchars($thread['image']); ?>" alt="Forum Image" style="max-height: 100px;"></p>
-                <form method="POST" action="" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label for="image">Image:</label>
-                        <input type="file" name="image" class="form-control" accept="image/*" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="title">Title:</label>
-                        <input type="text" name="title" class="form-control" required value="<?php echo htmlspecialchars($thread['title']); ?>" >
-                    </div>
-                    <div class="form-group">
-                        <label for="content">Content:</label>
-                        <textarea name="content" class="form-control" rows="5" required><?php echo htmlspecialchars($thread['content']); ?></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </form>
+                <input type="file" name="image" class="form-control" accept="image/*">
+            </div>
+
+            <!-- Title Input -->
+            <div class="form-group">
+                <label for="title">Title:</label>
+                <input type="text" name="title" class="form-control" value="<?php echo htmlspecialchars($thread['title']); ?>" required>
+            </div>
+
+            <!-- Content Textarea -->
+            <div class="form-group">
+                <label for="content">Content:</label>
+                <textarea name="content" class="form-control" rows="5" required><?php echo htmlspecialchars($thread['content']); ?></textarea>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-group text-center">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
                 <?php
 
                 // Handling form submission

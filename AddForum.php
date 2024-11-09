@@ -115,10 +115,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <div class="container mt-5">
 <form action="AddForum.php" method="POST" enctype="multipart/form-data">
     <div class="container">
-        <h2>Create Forum Post</h2>
+     
 
         <div class="form-section">
-            <h3>Post Details</h3>
+        <div class="text-center">
+        <h2>Create Forum Post</h2>
+        </div>
             <!-- Title Input -->
             <div class="form-group">
                 <label for="title">Post Title:</label>
@@ -149,16 +151,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <label for="image">Upload Image:</label>
                 <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
             </div>
+            <div class="text-center">
+            <button type="submit" class="btn btn-primary">Create Post</button>
+            <a href="Forum.php" class="btn btn-secondary">Cancel</a>
+        </div>
         </div>
 
         <!-- Hidden fields for timestamps -->
         <input type="hidden" name="created_at" value="<?php echo date('Y-m-d H:i:s'); ?>">
         <input type="hidden" name="updated_at" value="<?php echo date('Y-m-d H:i:s'); ?>">
 
-        <div class="text-center">
-            <button type="submit" class="btn btn-primary">Create Post</button>
-            <a href="Forum.php" class="btn btn-secondary">Cancel</a>
-        </div>
+
     </div>
 </form>
 </div>

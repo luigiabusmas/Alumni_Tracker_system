@@ -161,8 +161,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <?php include 'header.php'; ?>
 
 <div class="container">
+<div class="form-section">
+<div class="text-center">
     <h2>Create Job Listing</h2>
-    <a href="JobListing.php" class="btn btn-secondary">Back</a>
+</div>
     <form action="AddJobListing.php" method="POST">
         <div class="form-group">
             <label for="title">Job Title</label>
@@ -285,6 +287,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="text-center">
             <button type="submit" class="btn btn-primary">Create Job Listing</button>
             <a href="JobListing.php" class="btn btn-secondary">Cancel</a>
+        </div>
         </div>
         </div>
         </form>

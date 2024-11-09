@@ -122,10 +122,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <div class="container mt-5">
 <form action="AddEvent.php" method="POST" enctype="multipart/form-data">
     <div class="container">
-        <h2>Create Event</h2>
+      
 
         <div class="form-section">
-            <h3>Event Details</h3>
+        <div class="text-center">
+        <h2>Create Event</h2>
+        </div>
             <!-- Title Input -->
             <div class="form-group">
                 <label for="title">Event Title:</label>
