@@ -38,16 +38,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 header("Location: privacy.php");
                 exit();
             } else {
-                echo "Invalid password.";
-                echo "<br/><a href=\"index.php\">Back To login page</a>";
+      
+                echo "<script>
+                alert('Invalid password.');
+                window.location.href = 'index.php'; // Redirect to clear form after submission
+              </script>";
+
+
+
             }
         } else {
-            echo "Account is not verified or is inactive.";
-            echo "<br/><a href=\"index.php\">Back To login page</a>";
+
+
+            echo "<script>
+            alert('Account is not verified or is inactive.');
+            window.location.href = 'index.php'; // Redirect to clear form after submission
+          </script>";
         }
     } else {
-        echo "User not found.";
-        echo "<br/><a href=\"index.php\">Back To login page</a>";
+
+        echo "<script>
+            alert('User not found.');
+            window.location.href = 'index.php'; // Redirect to clear form after submission
+          </script>";
+        
+
+
     }
     
     $stmt->close();

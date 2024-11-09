@@ -6,6 +6,15 @@ require 'database.php'; // Include your database connection
 function handleError($message) {
     echo "<div style='color: red;'><strong>Error:</strong> " . htmlspecialchars($message) . "</div>";
     echo "<br/><a href=\"index.php\">Back To login page</a>";
+
+
+    echo "<script>
+            alert('" . htmlspecialchars($message) ."');
+            window.location.href = 'registration.php'; // Redirect to clear form after submission
+          </script>";
+        
+
+
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -49,7 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($result->num_rows > 0) {
             // Username already exists
-            handleError("The email address is already registered. Please use a different email or login.");
+            handleError("The Alumni ID has been already created");
         } else {
             // Insert the new user into the users_access table
             $stmt = $conn->prepare("INSERT INTO users_access (username, email, userpassword, alumni_id) VALUES (?, ?, ?, ?)");
@@ -71,7 +80,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         $stmt->close();
     } else {
-        handleError("Student ID not found."); // Use custom error handler
+        handleError("Alumni ID not found."); // Use custom error handler
     }
 }
 ?>
