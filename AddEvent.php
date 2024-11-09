@@ -6,7 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Sanitize and validate input data
     $title = mysqli_real_escape_string($conn, $_POST['title']);
     $description = mysqli_real_escape_string($conn, $_POST['description']);
-    $author_id = mysqli_real_escape_string($conn, $_POST['author_id']); // Assuming the author is selected from a user
+    // $author_id = mysqli_real_escape_string($conn, $_POST['author_id']); // Assuming the author is selected from a user
     $status = mysqli_real_escape_string($conn, $_POST['status']);
     $start_date = mysqli_real_escape_string($conn, $_POST['start_date']);
     $end_date = mysqli_real_escape_string($conn, $_POST['end_date']);
@@ -138,13 +138,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
             </div>
 
-            <!-- Author ID Input (hidden or selected from admin) -->
-  
             <!-- Status Dropdown -->
             <div class="form-group">
                 <label for="status">Status:</label>
                 <select class="form-control" id="status" name="status" required>
-                    <option value="Draft">Draft</option>
+                    <option value="Draft" selected>Draft</option>
                     <option value="Published">Published</option>
                     <option value="Archived">Archived</option>
                 </select>
@@ -170,47 +168,76 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <!-- Event Type Input -->
             <div class="form-group">
-                <label for="event_type">Event Type:</label>
-                <div class="form-group">
-    <label for="event-type">Event Type:</label>
-    <select name="event_type" id="event-type" class="custom-select" required>
-        <option value="">Select Event Type</option>
-        <option value="conference">Conference</option>
-        <option value="seminar">Seminar</option>
-        <option value="workshop">Workshop</option>
-        <option value="webinar">Webinar</option>
-        <option value="meeting">Meeting</option>
-        <option value="networking">Networking</option>
-        <option value="party">Party</option>
-        <option value="conference_call">Conference Call</option>
-        <option value="exhibition">Exhibition</option>
-        <option value="show">Show</option>
-        <option value="presentation">Presentation</option>
-    </select>
-</div>
-
+                <label for="event-type">Event Type:</label>
+                <select name="event_type" id="event-type" class="custom-select" required>
+                    <option value="">Select Event Type</option>
+                    <option value="conference">Conference</option>
+                    <option value="seminar">Seminar</option>
+                    <option value="workshop">Workshop</option>
+                    <option value="webinar">Webinar</option>
+                    <option value="meeting">Meeting</option>
+                    <option value="networking">Networking</option>
+                    <option value="party">Party</option>
+                    <option value="conference_call">Conference Call</option>
+                    <option value="exhibition">Exhibition</option>
+                    <option value="show">Show</option>
+                    <option value="presentation">Presentation</option>
+                </select>
             </div>
 
             <!-- Image Upload -->
             <div class="form-group">
                 <label for="image">Upload Image:</label>
-                <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
             </div>
 
+            <!-- Hidden fields for timestamps -->
+            <input type="hidden" name="created_at" value="<?php echo date('Y-m-d H:i:s'); ?>">
+            <input type="hidden" name="updated_at" value="<?php echo date('Y-m-d H:i:s'); ?>">
 
-        <!-- Hidden fields for timestamps -->
-        <input type="hidden" name="created_at" value="<?php echo date('Y-m-d H:i:s'); ?>">
-        <input type="hidden" name="updated_at" value="<?php echo date('Y-m-d H:i:s'); ?>">
-
-        <div class="text-center">
-            <button type="submit" class="btn btn-primary">Create Event</button>
-            <a href="Events.php" class="btn btn-secondary">Cancel</a>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Create Event</button>
+                <a href="Events.php" class="btn btn-secondary">Cancel</a>
+            </div>
         </div>
     </div>
 </form>
+
 </div>
 </div>
 <?php include 'footer.php'; ?>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Get the current date for validation
+        const today = new Date().toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM
+
+        // Set the minimum allowed value for the start date
+        const startDateInput = document.getElementById('start_date');
+        startDateInput.setAttribute('min', today);
+
+        // Add an event listener for start_date change to update end_date validation
+        startDateInput.addEventListener('change', function () {
+            validateEndDate();
+        });
+
+        // Function to validate end_date
+        function validateEndDate() {
+            const startDate = new Date(startDateInput.value);
+            const endDateInput = document.getElementById('end_date');
+            const endDate = new Date(endDateInput.value);
+
+            // If end date is before start date, show an alert and reset
+            if (endDate <= startDate) {
+                alert('End date must be greater than start date.');
+                endDateInput.value = ''; // Clear the end date input
+            }
+        }
+
+        // Add an event listener for end_date change to validate
+        const endDateInput = document.getElementById('end_date');
+        endDateInput.addEventListener('change', validateEndDate);
+    });
+</script>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Use full jQuery -->
 <script src="./resources/popper.min.js"></script>

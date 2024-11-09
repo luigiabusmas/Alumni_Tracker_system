@@ -122,30 +122,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <?php include 'header.php'; ?>
 <div class="container">
 <div class="form-section d-flex justify-content-between">
-                                    <div class="text-left">
-                                        <a href="Events.php" class="btn btn-success">Back to list</a>
-                            
-                                    </div>
+    <div class="text-left">
+        <a href="Events.php" class="btn btn-success">Back to list</a>
+    </div>
+    <div class="text-right">
+        <a href="DeleteEvents.php?id=<?php echo htmlspecialchars($event['id']); ?>"  
+        class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this Event? This action cannot be undone.');">Delete</a>
+    </div>
+</div>
 
-
-                                            <div class="text-right">
-                                            <a href="DeleteEvents.php?id=<?php echo htmlspecialchars($event['id']); ?>"  
-                                            class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this Event? This action cannot be undone.');">Delete</a>
-                                        </div>
-                    </div>
 <div class="form-section">
     <h2>Edit Event</h2>
 
     <form action="EditEvent.php?id=<?php echo $event_id; ?>" method="POST" enctype="multipart/form-data">
         
-    <div class="form-group">
-    <p>Current Image: <img src="image/<?php echo $event['image']; ?>" alt="Event Image" style="max-height: 100px;"></p>
+        <div class="form-group">
+            <p>Current Image: <img src="image/<?php echo $event['image']; ?>" alt="Event Image" style="max-height: 100px;"></p>
             <label for="image">Upload Image:</label>
             <input type="file" class="form-control" id="image" name="image" accept="image/*">
-            <?php if (!empty($event['image'])): ?>
-                
-            <?php endif; ?>
         </div>
+
         <div class="form-group">
             <label for="title">Event Title:</label>
             <input type="text" class="form-control" id="title" name="title" value="<?php echo htmlspecialchars($event['title']); ?>" required>
@@ -158,13 +154,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <div class="form-group">
             <label for="author_id">Author ID:</label>
-            <input type="text" class="form-control" id="author_id" name="author_id" value="<?php echo htmlspecialchars($event['author_id']); ?>" readonly >
+            <input type="hidden" class="form-control" id="author_id" name="author_id" value="<?php echo htmlspecialchars($event['author_id']); ?>"  >
         </div>
 
         <div class="form-group">
             <label for="status">Status:</label>
             <select class="form-control" id="status" name="status">
-                <option value="Draft" <?php echo $event['status'] == 'Draft' ? 'selected' : ''; ?>>Draft</option>
+                <option value="Draft" <?php echo $event['status'] == 'Draft' ? 'selected' : ''; ?> selected>Draft</option>
                 <option value="Published" <?php echo $event['status'] == 'Published' ? 'selected' : ''; ?>>Published</option>
                 <option value="Archive" <?php echo $event['status'] == 'Archive' ? 'selected' : ''; ?>>Archive</option>
             </select>
@@ -172,16 +168,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <div class="form-group">
             <label for="start_date">Start Date:</label>
-            <input type="datetime-local" class="form-control" id="start_date" name="start_date" value="<?php echo date('Y-m-d\TH:i', strtotime($event['start_date'])); ?>">
+            <input type="datetime-local" class="form-control" id="start_date" name="start_date" value="<?php echo date('Y-m-d\TH:i', strtotime($event['start_date'])); ?>" required>
         </div>
 
         <div class="form-group">
             <label for="end_date">End Date:</label>
-            <input type="datetime-local" class="form-control" id="end_date" name="end_date" value="<?php echo date('Y-m-d\TH:i', strtotime($event['end_date'])); ?>">
+            <input type="datetime-local" class="form-control" id="end_date" name="end_date" value="<?php echo date('Y-m-d\TH:i', strtotime($event['end_date'])); ?>" required>
         </div>
 
         <div class="form-group">
-            <label for="location">Location:</label>
+            <label for="location">Event Location:</label>
             <input type="text" class="form-control" id="location" name="location" value="<?php echo htmlspecialchars($event['location']); ?>" required>
         </div>
 
@@ -190,23 +186,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <input type="text" class="form-control" id="event_type" name="event_type" value="<?php echo htmlspecialchars($event['event_type']); ?>" required>
         </div>
 
-
-        <div class="text-center">
+        <div class="form-group">
             <button type="submit" class="btn btn-primary">Update Event</button>
-            <a href="events.php" class="btn btn-secondary">Cancel</a>
         </div>
     </form>
 </div>
 </div>
 
-
 <?php include 'footer.php'; ?>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Use full jQuery -->
-<script src="./resources/popper.min.js"></script>
-<script src="./resources/bootstrap.min.js"></script>
+<script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const startDate = new Date(document.getElementById('start_date').value);
+        const endDate = new Date(document.getElementById('end_date').value);
+        const currentDate = new Date();
 
+        if (startDate < currentDate) {
+            alert("Start date cannot be in the past. Please choose a future date.");
+            e.preventDefault();
+            return false;
+        }
 
+        if (endDate <= startDate) {
+            alert("End date must be later than start date.");
+            e.preventDefault();
+            return false;
+        }
+    });
+</script>
 
 </body>
 </html>
